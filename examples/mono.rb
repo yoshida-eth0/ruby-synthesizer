@@ -14,7 +14,7 @@ synth = Synthesizer::Mono.new(
   oscillators: [
     Synthesizer::Oscillator.new(
       shape: Synthesizer::Shape::SquareSawtooth,
-      uni_num: Synthesizer::Param.new(4),
+      uni_num: Synthesizer::ModulationValue.new(4),
         #.add(Synthesizer::Modulation::Lfo.new(
         #)),
       uni_detune: 0.1,
@@ -33,7 +33,7 @@ synth = Synthesizer::Mono.new(
     #),
   ],
   amplifier: Synthesizer::Amplifier.new(
-    volume: Synthesizer::Param.new(1.0)
+    volume: Synthesizer::ModulationValue.new(1.0)
       .add(Synthesizer::Modulation::Adsr.new(
         attack: 0.05,
         hold: 0.1,

@@ -64,8 +64,8 @@ module Synthesizer
         }.each(&block)
       end
 
-      def to_param
-        @param ||= Param.create(0).add(self)
+      def to_modval
+        @modval ||= ModulationValue.create(0).add(self)
       end
     end
   end

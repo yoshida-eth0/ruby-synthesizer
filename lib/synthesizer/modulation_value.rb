@@ -1,5 +1,5 @@
 module Synthesizer
-  class Param
+  class ModulationValue
 
     attr_accessor :value
     attr_reader :mods
@@ -9,7 +9,7 @@ module Synthesizer
       @mods = []
 
       mods.each {|mod, depth|
-        add(mod, depth)
+        add(mod, depth: depth)
       }
     end
 
@@ -28,23 +28,23 @@ module Synthesizer
     end
 
     def self.create(value)
-      if Param===value
+      if ModulationValue===value
         value
       else
         new(value)
       end
     end
 
-    def self.amp_generator(note_perform, samplerate, *params)
-      params = params.flatten.compact
+    def self.amp_generator(note_perform, samplerate, *modvals)
+      modvals = modvals.flatten.compact
 
       # value
-      value = params.map(&:value).sum
+      value = modvals.map(&:value).sum
 
       # mods
       mods = []
-      params.each {|param|
-        param.mods.each {|mod, depth|
+      modvals.each {|modval|
+        modval.mods.each {|mod, depth|
           mods << mod.amp_generator(note_perform, samplerate, depth)
         }
       }
@@ -57,17 +57,17 @@ module Synthesizer
       end
     end
 
-    def self.balance_generator(note_perform, samplerate, *params, center: 0)
-      params = params.flatten.compact
+    def self.balance_generator(note_perform, samplerate, *modvals, center: 0)
+      modvals = modvals.flatten.compact
 
       # value
-      value = params.map(&:value).sum
-      value -= (params.length - 1) * center
+      value = modvals.map(&:value).sum
+      value -= (modvals.length - 1) * center
 
       # mods
       mods = []
-      params.each {|param|
-        param.mods.each {|mod, depth|
+      modvals.each {|modval|
+        modval.mods.each {|mod, depth|
           mods << mod.balance_generator(note_perform, samplerate, depth)
         }
       }

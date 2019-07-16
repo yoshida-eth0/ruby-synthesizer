@@ -15,13 +15,13 @@ module Synthesizer
     # @param uni_num [Float] master voicing number (1.0~16.0)
     # @param uni_detune [Float] master voicing detune percent. 0.01=1cent 1.0=semitone (0.0~1.0)
     def initialize(shape: Shape::Sine, volume: 1.0, pan: 0.0, tune_semis: 0, tune_cents: 0, uni_num: 1.0, uni_detune: 0.0)
-      @volume = Param.create(volume)
-      @pan = Param.create(pan)
-      @tune_semis = Param.create(tune_semis)
-      @tune_cents = Param.create(tune_cents)
+      @volume = ModulationValue.create(volume)
+      @pan = ModulationValue.create(pan)
+      @tune_semis = ModulationValue.create(tune_semis)
+      @tune_cents = ModulationValue.create(tune_cents)
 
-      @uni_num = Param.create(uni_num)
-      @uni_detune = Param.create(uni_detune)
+      @uni_num = ModulationValue.create(uni_num)
+      @uni_detune = ModulationValue.create(uni_detune)
     end
   end
 end

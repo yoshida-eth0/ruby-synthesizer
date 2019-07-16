@@ -25,17 +25,17 @@ module Synthesizer
     def initialize(shape: Shape::Sine, volume: 1.0, pan: 0.0, tune_semis: 0, tune_cents: 0, sym: 0, phase: nil, sync: 0, uni_num: 1.0, uni_detune: 0.0)
       @shape = shape
 
-      @volume = Param.create(volume)
-      @pan = Param.create(pan)
-      @tune_semis = Param.create(tune_semis)
-      @tune_cents = Param.create(tune_cents)
+      @volume = ModulationValue.create(volume)
+      @pan = ModulationValue.create(pan)
+      @tune_semis = ModulationValue.create(tune_semis)
+      @tune_cents = ModulationValue.create(tune_cents)
 
-      @sym = Param.create(sym)
-      @phase = Param.create(phase)
-      @sync = Param.create(sync)
+      @sym = ModulationValue.create(sym)
+      @phase = ModulationValue.create(phase)
+      @sync = ModulationValue.create(sync)
 
-      @uni_num = Param.create(uni_num)
-      @uni_detune = Param.create(uni_detune)
+      @uni_num = ModulationValue.create(uni_num)
+      @uni_detune = ModulationValue.create(uni_detune)
     end
   end
 end

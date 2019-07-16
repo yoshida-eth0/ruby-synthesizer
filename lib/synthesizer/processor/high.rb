@@ -9,13 +9,13 @@ module Synthesizer
           window_size = synth.soundinfo.window_size
           samplerate = synth.soundinfo.samplerate
 
-          volume_mod = Param.amp_generator(note_perform, samplerate, osc.volume, amp.volume)
-          pan_mod = Param.balance_generator(note_perform, samplerate, osc.pan, amp.pan)
-          tune_semis_mod = Param.balance_generator(note_perform, samplerate, osc.tune_semis, amp.tune_semis, synth.glide&.to_param)
-          tune_cents_mod = Param.balance_generator(note_perform, samplerate, osc.tune_cents, amp.tune_cents)
+          volume_mod = ModulationValue.amp_generator(note_perform, samplerate, osc.volume, amp.volume)
+          pan_mod = ModulationValue.balance_generator(note_perform, samplerate, osc.pan, amp.pan)
+          tune_semis_mod = ModulationValue.balance_generator(note_perform, samplerate, osc.tune_semis, amp.tune_semis, synth.glide&.to_modval)
+          tune_cents_mod = ModulationValue.balance_generator(note_perform, samplerate, osc.tune_cents, amp.tune_cents)
 
-          uni_num_mod = Param.balance_generator(note_perform, samplerate, osc.uni_num, amp.uni_num, center: 1.0)
-          uni_detune_mod = Param.balance_generator(note_perform, samplerate, osc.uni_detune, amp.uni_detune)
+          uni_num_mod = ModulationValue.balance_generator(note_perform, samplerate, osc.uni_num, amp.uni_num, center: 1.0)
+          uni_detune_mod = ModulationValue.balance_generator(note_perform, samplerate, osc.uni_detune, amp.uni_detune)
           unison = Unison.new(note_perform, osc.shape, osc.phase)
 
           case channels

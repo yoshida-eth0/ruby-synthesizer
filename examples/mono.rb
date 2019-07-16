@@ -1,3 +1,4 @@
+require 'synthesizer'
 require 'audio_stream/core_ext'
 
 include AudioStream
@@ -9,31 +10,31 @@ soundinfo = SoundInfo.new(
   format: RubyAudio::FORMAT_WAV|RubyAudio::FORMAT_PCM_16
 )
 
-synth = Synth::Mono.new(
+synth = Synthesizer::Mono.new(
   oscs: [
-    Synth::Osc.new(
-      shape: Synth::Shape::SquareSawtooth,
-      uni_num: Synth::Param.new(4)
-        .add(Synth::Modulation::Lfo.new(
+    Synthesizer::Osc.new(
+      shape: Synthesizer::Shape::SquareSawtooth,
+      uni_num: Synthesizer::Param.new(4)
+        .add(Synthesizer::Modulation::Lfo.new(
         )),
       uni_detune: 0.1,
     ),
-    #Synth::Osc.new(
-    #  shape: Synth::Shape::SquareSawtooth,
+    #Synthesizer::Osc.new(
+    #  shape: Synthesizer::Shape::SquareSawtooth,
     #  tune_cents: 0.1,
     #  uni_num: 4,
     #  uni_detune: 0.1,
     #),
-    #Synth::Osc.new(
-    #  shape: Synth::Shape::SquareSawtooth,
+    #Synthesizer::Osc.new(
+    #  shape: Synthesizer::Shape::SquareSawtooth,
     #  tune_semis: -12,
     #  uni_num: 4,
     #  uni_detune: 0.1,
     #),
   ],
-  amp: Synth::Amp.new(
-    volume: Synth::Param.new(1.0)
-      .add(Synth::Modulation::Adsr.new(
+  amp: Synthesizer::Amp.new(
+    volume: Synthesizer::Param.new(1.0)
+      .add(Synthesizer::Modulation::Adsr.new(
         attack: 0.05,
         hold: 0.1,
         decay: 0.4,
@@ -42,28 +43,28 @@ synth = Synth::Mono.new(
       ), depth: 1.0),
     ),
   glide: 0.2,
-  quality: Synth::Quality::LOW,
+  quality: Synthesizer::Quality::LOW,
   soundinfo: soundinfo,
 )
 bufs = []
 
-synth.note_on(Synth::Tune.new(60))
+synth.note_on(Synthesizer::Tune.new(60))
 bufs += 50.times.map {|_| synth.next}
-synth.note_on(Synth::Tune.new(62))
+synth.note_on(Synthesizer::Tune.new(62))
 bufs += 50.times.map {|_| synth.next}
-synth.note_on(Synth::Tune.new(64))
+synth.note_on(Synthesizer::Tune.new(64))
 bufs += 50.times.map {|_| synth.next}
-synth.note_on(Synth::Tune.new(62))
+synth.note_on(Synthesizer::Tune.new(62))
 bufs += 50.times.map {|_| synth.next}
 
-synth.note_off(Synth::Tune.new(62))
+synth.note_off(Synthesizer::Tune.new(62))
 bufs += 50.times.map {|_| synth.next}
-synth.note_off(Synth::Tune.new(64))
+synth.note_off(Synthesizer::Tune.new(64))
 bufs += 50.times.map {|_| synth.next}
-synth.note_off(Synth::Tune.new(60))
-synth.note_on(Synth::Tune.new(65))
+synth.note_off(Synthesizer::Tune.new(60))
+synth.note_on(Synthesizer::Tune.new(65))
 bufs += 50.times.map {|_| synth.next}
-synth.note_off(Synth::Tune.new(65))
+synth.note_off(Synthesizer::Tune.new(65))
 bufs += 50.times.map {|_| synth.next}
 
 

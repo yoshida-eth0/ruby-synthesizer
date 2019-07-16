@@ -1,22 +1,22 @@
 module Synthesizer
   module Processor
     class High
-      def generator(osc, note, &block)
+      def generator(osc, note_perform, &block)
         Enumerator.new do |y|
-          synth = note.synth
+          synth = note_perform.synth
           amp = synth.amp
           channels = synth.soundinfo.channels
           window_size = synth.soundinfo.window_size
           samplerate = synth.soundinfo.samplerate
 
-          volume_mod = Param.amp_generator(note, samplerate, osc.volume, amp.volume)
-          pan_mod = Param.balance_generator(note, samplerate, osc.pan, amp.pan)
-          tune_semis_mod = Param.balance_generator(note, samplerate, osc.tune_semis, amp.tune_semis, synth.glide&.to_param)
-          tune_cents_mod = Param.balance_generator(note, samplerate, osc.tune_cents, amp.tune_cents)
+          volume_mod = Param.amp_generator(note_perform, samplerate, osc.volume, amp.volume)
+          pan_mod = Param.balance_generator(note_perform, samplerate, osc.pan, amp.pan)
+          tune_semis_mod = Param.balance_generator(note_perform, samplerate, osc.tune_semis, amp.tune_semis, synth.glide&.to_param)
+          tune_cents_mod = Param.balance_generator(note_perform, samplerate, osc.tune_cents, amp.tune_cents)
 
-          uni_num_mod = Param.balance_generator(note, samplerate, osc.uni_num, amp.uni_num, center: 1.0)
-          uni_detune_mod = Param.balance_generator(note, samplerate, osc.uni_detune, amp.uni_detune)
-          unison = Unison.new(note, osc.shape, osc.phase)
+          uni_num_mod = Param.balance_generator(note_perform, samplerate, osc.uni_num, amp.uni_num, center: 1.0)
+          uni_detune_mod = Param.balance_generator(note_perform, samplerate, osc.uni_detune, amp.uni_detune)
+          unison = Unison.new(note_perform, osc.shape, osc.phase)
 
           case channels
           when 1

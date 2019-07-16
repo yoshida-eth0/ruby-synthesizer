@@ -1,39 +1,40 @@
 module Synthesizer
   class Note
+    NOTE_TABLE = [:"C", :"C#/Db", :"D", :"D#/Eb", :"E", :"F", :"F#/Gb", :"G", :"G#/Ab", :"A", :"A#/Bb", :"B"].freeze
 
-    attr_reader :synth
-    attr_reader :tune
+    attr_reader :num
 
-    def initialize(synth, tune)
-      @synth = synth
-      @processors = synth.oscs.map {|osc|
-        synth.processor.generator(osc, self)
-      }
-
-      @tune = tune
-      @note_on = true
-      @released = false
+    def initialize(num)
+      @num = num.to_i
     end
 
-    def next
-      begin
-        @processors.map(&:next).inject(:+)
-      rescue StopIteration => e
-        @released = true
-        nil
+    def hz(semis: 0, cents: 0)
+      6.875 * (2 ** ((@num + semis + (cents / 100.0) + 3) / 12.0))
+    end
+
+    def note_name
+      NOTE_TABLE[@num % 12]
+    end
+
+    def octave_num
+      (@num / 12) - 1
+    end
+
+    def self.create(name, octave)
+      name = name.to_s
+      octave = octave.to_i
+
+      note_index = NOTE_TABLE.index(name)
+      if !note_index
+        raise Error, "not found note name: #{name}"
       end
-    end
 
-    def note_on?
-      @note_on
-    end
+      num = (octave + 1) * 12 + note_index
+      if num<0
+        raise Error, "octave #{octave} outside of note"
+      end
 
-    def note_off!
-      @note_on = false
-    end
-
-    def released?
-      @released
+      new(num)
     end
   end
 end

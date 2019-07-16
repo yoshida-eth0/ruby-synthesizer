@@ -47,18 +47,18 @@ synth = Synthesizer::Poly.new(
 )
 bufs = []
 
-synth.note_on(Synthesizer::Tune.new(60))
-synth.note_on(Synthesizer::Tune.new(62))
-synth.note_on(Synthesizer::Tune.new(64))
+synth.note_on(Synthesizer::Note.new(60))
+synth.note_on(Synthesizer::Note.new(62))
+synth.note_on(Synthesizer::Note.new(64))
 bufs += 10.times.map {|_| synth.next}
 synth.pitch_bend = 1
 bufs += 10.times.map {|_| synth.next}
 synth.pitch_bend = 2
 bufs += 10.times.map {|_| synth.next}
 
-synth.note_off(Synthesizer::Tune.new(60))
-synth.note_off(Synthesizer::Tune.new(62))
-synth.note_off(Synthesizer::Tune.new(64))
+synth.note_off(Synthesizer::Note.new(60))
+synth.note_off(Synthesizer::Note.new(62))
+synth.note_off(Synthesizer::Note.new(64))
 bufs += 50.times.map {|_| synth.next}
 
 
@@ -68,7 +68,7 @@ stereo_out = AudioOutput.device(soundinfo: soundinfo)
 
 track1
   .stream
-  .send_to(stereo_out, gain: 0.3)
+  .send_to(stereo_out, gain: 0.25)
 
 
 conductor = Conductor.new(

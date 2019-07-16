@@ -26,12 +26,12 @@ module Synthesizer
         @diff = target - @current
       end
 
-      def generator(note, samplerate, &block)
+      def generator(note_perform, samplerate, &block)
         Enumerator.new do |yld|
           rate = @time * samplerate
 
           loop {
-            if note.note_on?
+            if note_perform.note_on?
               # Note On
               if 0<@time && @target!=@current
                 # Gliding
@@ -58,8 +58,8 @@ module Synthesizer
         end.each(&block)
       end
 
-      def balance_generator(note, samplerate, depth, &block)
-        generator(note, samplerate).lazy.map {|val|
+      def balance_generator(note_perform, samplerate, depth, &block)
+        generator(note_perform, samplerate).lazy.map {|val|
           val * depth
         }.each(&block)
       end

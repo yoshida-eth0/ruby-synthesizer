@@ -22,16 +22,16 @@ module Synthesizer
       @soundinfo = soundinfo
 
       @processor = Processor.create(quality)
-      @notes = {}
+      @performs = {}
       @pitch_bend = 0.0
     end
 
     def next
-      if 0<@notes.length
-        bufs = @notes.values.map(&:next)
+      if 0<@performs.length
+        bufs = @performs.values.map(&:next)
 
-        # delete released notes
-        @notes.delete_if {|note_num, note| note.released? }
+        # delete released note performs
+        @performs.delete_if {|note_num, perform| perform.released? }
 
         bufs.compact.inject(:+)
       else
@@ -39,23 +39,23 @@ module Synthesizer
       end
     end
 
-    def note_on(tune)
+    def note_on(note)
       # Note Off
-      note = @notes[tune.note_num]
-      if note
-        note.note_off!
+      perform = @performs[note.num]
+      if perform
+        perform.note_off!
       end
 
       # Note On
-      note = Note.new(self, tune)
-      @notes[tune.note_num] = note
+      perform = NotePerform.new(self, note)
+      @performs[note.num] = perform
     end
 
-    def note_off(tune)
+    def note_off(note)
       # Note Off
-      note = @notes[tune.note_num]
-      if note
-        note.note_off!
+      perform = @performs[note.num]
+      if perform
+        perform.note_off!
       end
     end
   end

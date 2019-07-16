@@ -48,23 +48,23 @@ synth = Synthesizer::Mono.new(
 )
 bufs = []
 
-synth.note_on(Synthesizer::Tune.new(60))
+synth.note_on(Synthesizer::Note.new(60))
 bufs += 50.times.map {|_| synth.next}
-synth.note_on(Synthesizer::Tune.new(62))
+synth.note_on(Synthesizer::Note.new(62))
 bufs += 50.times.map {|_| synth.next}
-synth.note_on(Synthesizer::Tune.new(64))
+synth.note_on(Synthesizer::Note.new(64))
 bufs += 50.times.map {|_| synth.next}
-synth.note_on(Synthesizer::Tune.new(62))
+synth.note_on(Synthesizer::Note.new(62))
 bufs += 50.times.map {|_| synth.next}
 
-synth.note_off(Synthesizer::Tune.new(62))
+synth.note_off(Synthesizer::Note.new(62))
 bufs += 50.times.map {|_| synth.next}
-synth.note_off(Synthesizer::Tune.new(64))
+synth.note_off(Synthesizer::Note.new(64))
 bufs += 50.times.map {|_| synth.next}
-synth.note_off(Synthesizer::Tune.new(60))
-synth.note_on(Synthesizer::Tune.new(65))
+synth.note_off(Synthesizer::Note.new(60))
+synth.note_on(Synthesizer::Note.new(65))
 bufs += 50.times.map {|_| synth.next}
-synth.note_off(Synthesizer::Tune.new(65))
+synth.note_off(Synthesizer::Note.new(65))
 bufs += 50.times.map {|_| synth.next}
 
 

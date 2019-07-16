@@ -23,18 +23,18 @@ module Synthesizer
 
       @processor = Processor.create(quality)
       @note_nums = []
-      @note = nil
+      @perform = nil
       @glide = Modulation::Glide.new(time: glide)
       @pitch_bend = 0.0
     end
 
     def next
-      if @note
-        buf = @note.next
+      if @perform
+        buf = @perform.next
 
-        # delete released notes
-        if @note.released?
-          @note = nil
+        # delete released note perform
+        if @perform.released?
+          @perform = nil
         end
 
         buf
@@ -43,29 +43,29 @@ module Synthesizer
       end
     end
 
-    def note_on(tune)
+    def note_on(note)
       # Note Off
-      note_off(tune)
+      note_off(note)
 
-      if @note && @note.note_on?
+      if @perform && @perform.note_on?
         # Glide
-        @glide.target = tune.note_num
+        @glide.target = note.num
       else
         # Note On
-        @note = Note.new(self, tune)
-        @glide.base = tune.note_num
+        @perform = NotePerform.new(self, note)
+        @glide.base = note.num
       end
-      @note_nums << tune.note_num        
+      @note_nums << note.num        
     end
 
-    def note_off(tune)
+    def note_off(note)
       # Note Off
-      @note_nums.delete_if {|note_num| note_num==tune.note_num}
+      @note_nums.delete_if {|note_num| note_num==note.num}
 
-      if @note
+      if @perform
         if @note_nums.length==0
           # Note Off
-          @note.note_off!
+          @perform.note_off!
         else
           # Glide
           @glide.target = @note_nums.last

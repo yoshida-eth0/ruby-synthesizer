@@ -37,7 +37,7 @@ module Synthesizer
 
         l_gain, r_gain = Utils.panning(pan + diff_pan)
 
-        hz = @note_perform.tune.hz(semis: tune_semis, cents: tune_cents + detune_cents)
+        hz = @note_perform.note.hz(semis: tune_semis, cents: tune_cents + detune_cents)
         delta = hz / @samplerate
 
         val = @shape[pos.next(delta)] * uni_volume

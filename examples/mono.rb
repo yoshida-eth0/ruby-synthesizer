@@ -11,28 +11,28 @@ soundinfo = SoundInfo.new(
 )
 
 synth = Synthesizer::Mono.new(
-  oscs: [
-    Synthesizer::Osc.new(
+  oscillators: [
+    Synthesizer::Oscillator.new(
       shape: Synthesizer::Shape::SquareSawtooth,
-      uni_num: Synthesizer::Param.new(4)
-        .add(Synthesizer::Modulation::Lfo.new(
-        )),
+      uni_num: Synthesizer::Param.new(4),
+        #.add(Synthesizer::Modulation::Lfo.new(
+        #)),
       uni_detune: 0.1,
     ),
-    #Synthesizer::Osc.new(
+    #Synthesizer::Oscillator.new(
     #  shape: Synthesizer::Shape::SquareSawtooth,
     #  tune_cents: 0.1,
     #  uni_num: 4,
     #  uni_detune: 0.1,
     #),
-    #Synthesizer::Osc.new(
+    #Synthesizer::Oscillator.new(
     #  shape: Synthesizer::Shape::SquareSawtooth,
     #  tune_semis: -12,
     #  uni_num: 4,
     #  uni_detune: 0.1,
     #),
   ],
-  amp: Synthesizer::Amp.new(
+  amplifier: Synthesizer::Amplifier.new(
     volume: Synthesizer::Param.new(1.0)
       .add(Synthesizer::Modulation::Adsr.new(
         attack: 0.05,

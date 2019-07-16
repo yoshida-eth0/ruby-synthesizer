@@ -1,5 +1,5 @@
 module Synthesizer
-  class Osc
+  class Oscillator
 
     attr_reader :shape
     attr_reader :volume

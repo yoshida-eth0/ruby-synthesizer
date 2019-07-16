@@ -4,7 +4,7 @@ module Synthesizer
       def generator(osc, note_perform, &block)
         Enumerator.new do |y|
           synth = note_perform.synth
-          amp = synth.amp
+          amp = synth.amplifier
           channels = synth.soundinfo.channels
           window_size = synth.soundinfo.window_size
           samplerate = synth.soundinfo.samplerate

@@ -1,5 +1,5 @@
 module Synthesizer
-  class Amp
+  class Amplifier
 
     attr_reader :volume
     attr_reader :pan

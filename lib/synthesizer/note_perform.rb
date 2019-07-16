@@ -6,7 +6,7 @@ module Synthesizer
 
     def initialize(synth, note)
       @synth = synth
-      @processors = synth.oscs.map {|osc|
+      @processors = synth.oscillators.map {|osc|
         synth.processor.generator(osc, self)
       }
 

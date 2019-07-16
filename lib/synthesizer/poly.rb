@@ -1,8 +1,8 @@
 module Synthesizer
   class Poly
 
-    attr_reader :oscs
-    attr_reader :amp
+    attr_reader :oscillators
+    attr_reader :amplifier
     attr_reader :processor
 
     attr_reader :quality
@@ -11,12 +11,12 @@ module Synthesizer
     attr_reader :glide
     attr_accessor :pitch_bend
 
-    # @param oscs [Osc] Oscillator
-    # @param amp [Amp] amplifier
+    # @param oscillators [Oscillator] Oscillator
+    # @param amplifier [Amplifier] amplifier
     # @param soundinfo [SoundInfo]
-    def initialize(oscs:, amp:, quality: Quality::LOW, soundinfo:)
-      @oscs = [oscs].flatten.compact
-      @amp = amp
+    def initialize(oscillators:, amplifier:, quality: Quality::LOW, soundinfo:)
+      @oscillators = [oscillators].flatten.compact
+      @amplifier = amplifier
 
       @quality = quality
       @soundinfo = soundinfo

@@ -5,11 +5,11 @@ require "synthesizer/version"
 Gem::Specification.new do |spec|
   spec.name          = "synthesizer"
   spec.version       = Synthesizer::VERSION
-  spec.authors       = ["yoshida"]
+  spec.authors       = ["Yoshida Tetsuya"]
   spec.email         = ["yoshida.eth0@gmail.com"]
 
-  spec.summary       = %q{Write a short summary, because RubyGems requires one.}
-  spec.description   = %q{Write a longer description or delete this line.}
+  spec.summary       = %q{Synthesizer implemented in Ruby.}
+  spec.description   = %q{Synthesizer implemented in Ruby.}
   spec.homepage      = "https://github.com/yoshida-eth0/ruby-synthesizer"
   spec.license       = "MIT"
 
@@ -30,10 +30,10 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "minitest", "~> 5.0"
 
-  spec.add_dependency "audio_stream", "~> 1.0"
-  spec.add_dependency "ruby-audio", "~> 1.6.1"
-  spec.add_dependency "coreaudio", "~> 0.0.12" 
-  spec.add_dependency "ruby-fftw3", "~> 1.0.2"
-  spec.add_dependency "rx", "~> 0.0.3"
-  spec.add_dependency "rbplotly", "~> 0.1.2"
+  spec.add_dependency "audio_stream", ">= 1.0"
+  spec.add_dependency "ruby-audio", ">= 1.6.1"
+  spec.add_dependency "coreaudio", ">= 0.0.12" 
+  spec.add_dependency "ruby-fftw3", ">= 1.0.2"
+  spec.add_dependency "rx", ">= 0.0.3"
+  spec.add_dependency "rbplotly", ">= 0.1.2"
 end

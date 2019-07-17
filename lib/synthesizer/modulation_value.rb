@@ -13,7 +13,7 @@ module Synthesizer
       }
     end
 
-    # @param mod [Synth::Modulation]
+    # @param mod [Synthesizer::Modulation]
     # @param depth [Float] (-1.0~1.0)
     def add(mod, depth: 1.0)
       depth ||= 1.0

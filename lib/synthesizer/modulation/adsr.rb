@@ -3,13 +3,13 @@ module Synthesizer
     class Adsr
 
       # @param attack [Float] attack sec (0.0~)
-      # @param attack_curve [Synth::Curve]
+      # @param attack_curve [Synthesizer::Curve]
       # @param hold [Float] hold sec (0.0~)
       # @param decay [Float] decay sec (0.0~)
-      # @param sustain_curve [Synth::Curve]
+      # @param sustain_curve [Synthesizer::Curve]
       # @param sustain [Float] sustain sec (0.0~)
       # @param release [Float] release sec (0.0~)
-      # @param release_curve [Synth::Curve]
+      # @param release_curve [Synthesizer::Curve]
       def initialize(attack:, attack_curve: Curve::EaseOut, hold: 0.0, decay:, sustain_curve: Curve::EaseOut, sustain:, release:, release_curve: Curve::EaseOut)
         @attack = attack
         @attack_curve = attack_curve

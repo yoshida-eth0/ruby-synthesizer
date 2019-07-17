@@ -12,7 +12,7 @@ module Synthesizer
     attr_reader :uni_num
     attr_reader :uni_detune
 
-    # @param shape [Synth::Shape] oscillator waveform shape
+    # @param shape [Synthesizer::Shape] oscillator waveform shape
     # @param volume [Float] oscillator volume. mute=0.0 max=1.0
     # @param pan [Float] oscillator pan. left=-1.0 center=0.0 right=1.0 (-1.0~1.0)
     # @param tune_semis [Integer] oscillator pitch semitone

@@ -2,10 +2,10 @@ module Synthesizer
   module Modulation
     class Lfo
 
-      # @param shape [Synth::Shape]
+      # @param shape [Synthesizer::Shape]
       # @param delay [Float] delay sec (0.0~)
       # @param attack [Float] attack sec (0.0~)
-      # @param attack_curve [Synth::Curve]
+      # @param attack_curve [Synthesizer::Curve]
       # @param phase [Float] phase percent (0.0~1.0)
       # @param rate [Float] wave freq (0.0~)
       def initialize(shape: Shape::Sine, delay: 0.0, attack: 0.0, attack_curve: Curve::Straight, phase: 0.0, rate: 3.5)

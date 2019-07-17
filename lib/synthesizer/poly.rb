@@ -11,9 +11,9 @@ module Synthesizer
     attr_reader :glide
     attr_accessor :pitch_bend
 
-    # @param oscillators [Oscillator] Oscillator
-    # @param amplifier [Amplifier] amplifier
-    # @param soundinfo [SoundInfo]
+    # @param oscillators [Synthesizer::Oscillator] Oscillator
+    # @param amplifier [Synthesizer::Amplifier] amplifier
+    # @param soundinfo [AudioStream::SoundInfo]
     def initialize(oscillators:, amplifier:, quality: Quality::LOW, soundinfo:)
       @oscillators = [oscillators].flatten.compact
       @amplifier = amplifier

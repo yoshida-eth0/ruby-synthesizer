@@ -1,7 +1,8 @@
-require "synthesizer/version"
+require 'synthesizer/version'
 
 require 'audio_stream'
 require 'audio_stream/audio_input_synth.rb'
+require 'audio_stream/audio_input_metronome.rb'
 
 require 'synthesizer/poly'
 require 'synthesizer/mono'

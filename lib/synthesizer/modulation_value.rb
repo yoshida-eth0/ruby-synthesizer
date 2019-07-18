@@ -14,14 +14,14 @@ module Synthesizer
     end
 
     # @param mod [Synthesizer::Modulation]
-    # @param depth [Float] (-1.0~1.0)
+    # @param depth [Float] depth. volume => percent(-1.0~1.0, default=1.0), filter freq => relative value(hz), other => relative value
     def add(mod, depth: 1.0)
       depth ||= 1.0
-      if depth<-1.0
-        depth = -1.0
-      elsif 1.0<depth
-        depth = 1.0
-      end
+      #if depth<-1.0
+      #  depth = -1.0
+      #elsif 1.0<depth
+      #  depth = 1.0
+      #end
 
       @mods << [mod, depth]
       self
@@ -35,7 +35,7 @@ module Synthesizer
       end
     end
 
-    def self.amp_generator(note_perform, samplerate, *modvals)
+    def self.amp_generator(note_perform, framerate, *modvals)
       modvals = modvals.flatten.compact
 
       # value
@@ -45,7 +45,7 @@ module Synthesizer
       mods = []
       modvals.each {|modval|
         modval.mods.each {|mod, depth|
-          mods << mod.amp_generator(note_perform, samplerate, depth)
+          mods << mod.amp_generator(note_perform, framerate, depth)
         }
       }
 
@@ -57,7 +57,7 @@ module Synthesizer
       end
     end
 
-    def self.balance_generator(note_perform, samplerate, *modvals, center: 0)
+    def self.balance_generator(note_perform, framerate, *modvals, center: 0)
       modvals = modvals.flatten.compact
 
       # value
@@ -68,7 +68,7 @@ module Synthesizer
       mods = []
       modvals.each {|modval|
         modval.mods.each {|mod, depth|
-          mods << mod.balance_generator(note_perform, samplerate, depth)
+          mods << mod.balance_generator(note_perform, framerate, depth)
         }
       }
 

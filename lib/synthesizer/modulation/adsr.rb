@@ -21,10 +21,10 @@ module Synthesizer
         @release_curve = release_curve
       end
 
-      def note_on_envelope(samplerate, sustain: false, &block)
+      def note_on_envelope(framerate, sustain: false, &block)
         Enumerator.new do |yld|
           # attack
-          rate = @attack * samplerate
+          rate = @attack * framerate
           rate.to_i.times {|i|
             x = i.to_f / rate
             y = @attack_curve[x]
@@ -32,13 +32,13 @@ module Synthesizer
           }
 
           # hold
-          rate = @hold * samplerate
+          rate = @hold * framerate
           rate.to_i.times {|i|
             yld << 1.0
           }
 
           # decay
-          rate = @decay * samplerate
+          rate = @decay * framerate
           rate.to_i.times {|i|
             x = i.to_f / rate
             y = 1.0 - @sustain_curve[x]  * (1.0 - @sustain)
@@ -54,10 +54,10 @@ module Synthesizer
         end.each(&block)
       end
 
-      def note_off_envelope(samplerate, sustain: false, &block)
+      def note_off_envelope(framerate, sustain: false, &block)
         Enumerator.new do |yld|
           # release
-          rate = @release * samplerate
+          rate = @release * framerate
           rate.to_i.times {|i|
             x = i.to_f / rate
             y = 1.0 - @release_curve[x]
@@ -73,10 +73,10 @@ module Synthesizer
         end.each(&block)
       end
 
-      def generator(note_perform, samplerate, release_sustain:, &block)
+      def generator(note_perform, framerate, release_sustain:, &block)
         Enumerator.new do |y|
-          note_on = note_on_envelope(samplerate, sustain: true)
-          note_off = note_off_envelope(samplerate, sustain: release_sustain)
+          note_on = note_on_envelope(framerate, sustain: true)
+          note_off = note_off_envelope(framerate, sustain: release_sustain)
           last = 0.0
 
           loop {
@@ -91,23 +91,23 @@ module Synthesizer
       end
 
 
-      def amp_generator(note_perform, samplerate, depth, &block)
+      def amp_generator(note_perform, framerate, depth, &block)
         bottom = 1.0 - depth
 
-        generator(note_perform, samplerate, release_sustain: 0.0<bottom).lazy.map {|val|
+        generator(note_perform, framerate, release_sustain: 0.0<bottom).lazy.map {|val|
           val * depth + bottom
         }.each(&block)
       end
 
-      def balance_generator(note_perform, samplerate, depth, &block)
-        generator(note_perform, samplerate).lazy.map {|val|
+      def balance_generator(note_perform, framerate, depth, &block)
+        generator(note_perform, framerate, release_sustain: true).lazy.map {|val|
           val * depth
         }.each(&block)
       end
 
-      def plot_data(samplerate: 44100)
-        note_on = note_on_envelope(samplerate, sustain: false)
-        note_off = note_off_envelope(samplerate, sustain: false)
+      def plot_data(framerate: 44100)
+        note_on = note_on_envelope(framerate, sustain: false)
+        note_off = note_off_envelope(framerate, sustain: false)
         last = 0.0
 
         xs = []
@@ -127,8 +127,8 @@ module Synthesizer
         {x: xs, y: ys}
       end
 
-      def plot(samplerate: 44100)
-        data = plot_data(samplerate: samplerate)
+      def plot(framerate: 44100)
+        data = plot_data(framerate: framerate)
         Plotly::Plot.new(data: [data])
       end
     end

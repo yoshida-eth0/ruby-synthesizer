@@ -17,20 +17,20 @@ module Synthesizer
         @rate = rate
       end
 
-      def generator(note_perform, samplerate, &block)
+      def generator(note_perform, framerate, &block)
         Enumerator.new do |yld|
-          delta = @rate / samplerate
+          delta = @rate / framerate
 
           pos = ShapePos.new(phase: @phase)
 
           # delay
-          rate = @delay * samplerate
+          rate = @delay * framerate
           rate.to_i.times {|i|
             yld << 0.0
           }
 
           # attack
-          rate = @attack * samplerate
+          rate = @attack * framerate
           rate.to_i.times {|i|
             x = i.to_f / rate
             y = @attack_curve[x]
@@ -45,17 +45,17 @@ module Synthesizer
         end.each(&block)
       end
 
-      def amp_generator(note_perform, samplerate, depth, &block)
+      def amp_generator(note_perform, framerate, depth, &block)
         bottom = 1.0 - depth
 
-        generator(note_perform, samplerate).lazy.map {|val|
+        generator(note_perform, framerate).lazy.map {|val|
           val = (val + 1) / 2
           val * depth + bottom
         }.each(&block)
       end
 
-      def balance_generator(note_perform, samplerate, depth, &block)
-        generator(note_perform, samplerate).lazy.map {|val|
+      def balance_generator(note_perform, framerate, depth, &block)
+        generator(note_perform, framerate).lazy.map {|val|
           val * depth
         }.each(&block)
       end

@@ -2,6 +2,7 @@ module Synthesizer
   class Poly
 
     attr_reader :oscillators
+    attr_reader :filter
     attr_reader :amplifier
     attr_reader :processor
 
@@ -12,10 +13,12 @@ module Synthesizer
     attr_accessor :pitch_bend
 
     # @param oscillators [Synthesizer::Oscillator] Oscillator
+    # @param filter [Synthesizer::Filter] filter
     # @param amplifier [Synthesizer::Amplifier] amplifier
     # @param soundinfo [AudioStream::SoundInfo]
-    def initialize(oscillators:, amplifier:, quality: Quality::LOW, soundinfo:)
+    def initialize(oscillators:, filter: nil, amplifier:, quality: Quality::LOW, soundinfo:)
       @oscillators = [oscillators].flatten.compact
+      @filter = filter
       @amplifier = amplifier
 
       @quality = quality

@@ -2,6 +2,7 @@ module Synthesizer
   class Mono
 
     attr_reader :oscillators
+    attr_reader :filter
     attr_reader :amplifier
     attr_reader :processor
 
@@ -14,8 +15,9 @@ module Synthesizer
     # @param oscillators [Synthesizer::Oscillator] oscillator
     # @param amplifier [Synthesizer::Amplifier] amplifier
     # @param soundinfo [AudioStream::SoundInfo]
-    def initialize(oscillators:, amplifier:, glide: 0.1, quality: Quality::LOW, soundinfo:)
+    def initialize(oscillators:, filter: nil, amplifier:, glide: 0.1, quality: Quality::LOW, soundinfo:)
       @oscillators = [oscillators].flatten.compact
+      @filter = filter
       @amplifier = amplifier
 
       @quality = quality

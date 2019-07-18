@@ -4,19 +4,27 @@ module Synthesizer
       def generator(osc, note_perform, &block)
         Enumerator.new do |y|
           synth = note_perform.synth
+          filter = synth.filter
           amp = synth.amplifier
           channels = synth.soundinfo.channels
           window_size = synth.soundinfo.window_size
-          samplerate = synth.soundinfo.samplerate.to_f / window_size
+          framerate = synth.soundinfo.samplerate.to_f / window_size
 
-          volume_mod = ModulationValue.amp_generator(note_perform, samplerate, osc.volume, amp.volume)
-          pan_mod = ModulationValue.balance_generator(note_perform, samplerate, osc.pan, amp.pan)
-          tune_semis_mod = ModulationValue.balance_generator(note_perform, samplerate, osc.tune_semis, amp.tune_semis, synth.glide&.to_modval)
-          tune_cents_mod = ModulationValue.balance_generator(note_perform, samplerate, osc.tune_cents, amp.tune_cents)
+          # Oscillator, Amplifier
+          volume_mod = ModulationValue.amp_generator(note_perform, framerate, osc.volume, amp.volume)
+          pan_mod = ModulationValue.balance_generator(note_perform, framerate, osc.pan, amp.pan)
+          tune_semis_mod = ModulationValue.balance_generator(note_perform, framerate, osc.tune_semis, amp.tune_semis, synth.glide&.to_modval)
+          tune_cents_mod = ModulationValue.balance_generator(note_perform, framerate, osc.tune_cents, amp.tune_cents)
 
-          uni_num_mod = ModulationValue.balance_generator(note_perform, samplerate, osc.uni_num, amp.uni_num, center: 1.0)
-          uni_detune_mod = ModulationValue.balance_generator(note_perform, samplerate, osc.uni_detune, amp.uni_detune)
+          uni_num_mod = ModulationValue.balance_generator(note_perform, framerate, osc.uni_num, amp.uni_num, center: 1.0)
+          uni_detune_mod = ModulationValue.balance_generator(note_perform, framerate, osc.uni_detune, amp.uni_detune)
           unison = Unison.new(note_perform, osc.shape, osc.phase)
+
+          # Filter
+          filter_mod = nil
+          if filter
+            filter_mod = filter.generator(note_perform, framerate)
+          end
 
           case channels
           when 1
@@ -41,6 +49,7 @@ module Synthesizer
             loop {
               buf = AudioStream::Buffer.float(window_size, channels)
 
+              # Oscillator, Amplifier
               volume = volume_mod.next
               pan = pan_mod.next
               tune_semis = tune_semis_mod.next + synth.pitch_bend
@@ -52,6 +61,12 @@ module Synthesizer
               window_size.times.each {|i|
                 buf[i] = unison.next(uni_num, uni_detune, volume, pan, tune_semis, tune_cents)
               }
+
+              # Filter
+              if filter_mod
+                filter_fx = filter_mod.next
+                buf = filter_fx.process(buf)
+              end
 
               y << buf
             }

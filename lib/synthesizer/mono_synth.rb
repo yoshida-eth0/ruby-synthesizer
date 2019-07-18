@@ -1,5 +1,5 @@
 module Synthesizer
-  class Mono
+  class MonoSynth
 
     attr_reader :oscillators
     attr_reader :filter

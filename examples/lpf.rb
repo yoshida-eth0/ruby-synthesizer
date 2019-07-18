@@ -2,6 +2,7 @@ require 'synthesizer'
 require 'audio_stream/core_ext'
 
 include AudioStream
+include Synthesizer
 
 soundinfo = SoundInfo.new(
   channels: 2,
@@ -10,16 +11,16 @@ soundinfo = SoundInfo.new(
   format: RubyAudio::FORMAT_WAV|RubyAudio::FORMAT_PCM_16
 )
 
-synth = Synthesizer::Poly.new(
+synth = PolySynth.new(
   oscillators: [
-    Synthesizer::Oscillator.new(
-      shape: Synthesizer::Shape::WhiteNoise
+    Oscillator.new(
+      shape: Shape::WhiteNoise
     ),
   ],
-  filter: Synthesizer::Filter::Serial.new(
-    Synthesizer::Filter::LowPassFilter.new(
-      freq: Synthesizer::ModulationValue.new(440.0)
-        .add(Synthesizer::Modulation::Adsr.new(
+  filter: Filter::Serial.new(
+    Filter::LowPassFilter.new(
+      freq: ModulationValue.new(440.0)
+        .add(Modulation::Adsr.new(
           attack: 3.0,
           hold: 0.0,
           decay: 0.0,
@@ -27,9 +28,9 @@ synth = Synthesizer::Poly.new(
           release: 1.0
         ), depth: 3000.0),
     ),
-    Synthesizer::Filter::HighPassFilter.new(
-      freq: Synthesizer::ModulationValue.new(400.0)
-        .add(Synthesizer::Modulation::Adsr.new(
+    Filter::HighPassFilter.new(
+      freq: ModulationValue.new(400.0)
+        .add(Modulation::Adsr.new(
           attack: 3.0,
           hold: 0.0,
           decay: 0.0,
@@ -38,9 +39,9 @@ synth = Synthesizer::Poly.new(
         ), depth: 3000.0),
     ),
   ),
-  amplifier: Synthesizer::Amplifier.new(
-    volume: Synthesizer::ModulationValue.new(1.0)
-      .add(Synthesizer::Modulation::Adsr.new(
+  amplifier: Amplifier.new(
+    volume: ModulationValue.new(1.0)
+      .add(Modulation::Adsr.new(
         attack: 0.05,
         hold: 0.1,
         decay: 0.4,
@@ -48,15 +49,15 @@ synth = Synthesizer::Poly.new(
         release: 0.2
       ), depth: 1.0),
     ),
-  quality: Synthesizer::Quality::LOW,
+  quality: Quality::LOW,
   soundinfo: soundinfo,
 )
 bufs = []
 
-synth.note_on(Synthesizer::Note.new(60))
+synth.note_on(Note.new(60))
 bufs += 100.times.map {|_| synth.next}
 
-synth.note_off(Synthesizer::Note.new(60))
+synth.note_off(Note.new(60))
 bufs += 50.times.map {|_| synth.next}
 
 

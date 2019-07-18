@@ -1,5 +1,5 @@
 module Synthesizer
-  class Poly
+  class PolySynth
 
     attr_reader :oscillators
     attr_reader :filter

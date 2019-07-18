@@ -31,6 +31,7 @@ module Synthesizer
             loop {
               buf = AudioStream::Buffer.float(window_size, channels)
 
+              # Oscillator, Amplifier
               volume = volume_mod.next
               tune_semis = tune_semis_mod.next + synth.pitch_bend
               tune_cents = tune_cents_mod.next
@@ -42,6 +43,12 @@ module Synthesizer
                 val = unison.next(uni_num, uni_detune, volume, 0.0, tune_semis, tune_cents)
                 buf[i] = (val[0] + val[1]) / 2.0
               }
+
+              # Filter
+              if filter_mod
+                filter_fx = filter_mod.next
+                filter_fx.process!(buf)
+              end
 
               y << buf
             }
@@ -65,7 +72,7 @@ module Synthesizer
               # Filter
               if filter_mod
                 filter_fx = filter_mod.next
-                buf = filter_fx.process(buf)
+                filter_fx.process!(buf)
               end
 
               y << buf

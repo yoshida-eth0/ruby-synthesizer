@@ -3,6 +3,8 @@ require 'synthesizer/version'
 require 'audio_stream'
 require 'audio_stream/audio_input_synth.rb'
 require 'audio_stream/audio_input_metronome.rb'
+require 'audio_stream/audio_input_step_editor'
+require 'synthesizer/step_editor'
 
 require 'synthesizer/poly_synth'
 require 'synthesizer/mono_synth'

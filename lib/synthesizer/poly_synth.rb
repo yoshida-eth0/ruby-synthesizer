@@ -30,16 +30,16 @@ module Synthesizer
     end
 
     def next
+      buf = nil
       if 0<@performs.length
-        bufs = @performs.values.map(&:next)
+        bufs = @performs.values.map(&:next).compact
 
         # delete released note performs
         @performs.delete_if {|note_num, perform| perform.released? }
 
-        bufs.compact.inject(:+)
-      else
-        AudioStream::Buffer.float(@soundinfo.window_size, @soundinfo.channels)
+        buf = bufs.inject(:+)
       end
+      buf || AudioStream::Buffer.float(@soundinfo.window_size, @soundinfo.channels)
     end
 
     # @param note [Synthesizer::Note]

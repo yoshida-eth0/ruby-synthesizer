@@ -31,6 +31,7 @@ module Synthesizer
     end
 
     def next
+      buf = nil
       if @perform
         buf = @perform.next
 
@@ -38,11 +39,8 @@ module Synthesizer
         if @perform.released?
           @perform = nil
         end
-
-        buf
-      else
-        AudioStream::Buffer.float(@soundinfo.window_size, @soundinfo.channels)
       end
+      buf || AudioStream::Buffer.float(@soundinfo.window_size, @soundinfo.channels)
     end
 
     # @param note [Synthesizer::Note]

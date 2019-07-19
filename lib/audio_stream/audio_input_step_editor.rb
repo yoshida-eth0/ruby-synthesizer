@@ -11,13 +11,27 @@ module AudioStream
       @soundinfo = synth.soundinfo
     end
 
+    def connect
+      @connected = true
+      super
+    end
+
+    def disconnect
+      if @connected
+        @connected = false
+
+        if @connection
+          @connection.kill
+          @connection  = nil
+        end
+      end
+    end
+
     def each(&block)
       Enumerator.new do |y|
-
         events = Hash.new {|h, k| h[k]=[]}
 
         fps = @soundinfo.samplerate.to_f / @soundinfo.window_size
-
         @step_editor.events.each {|event|
           pos = event[0]
           events[(pos * fps).to_i] << event
@@ -25,6 +39,9 @@ module AudioStream
 
         catch :break do
           Range.new(0, nil).each {|i|
+            if !@connected
+              throw :break
+            end
             if events.has_key?(i)
               events[i].each {|event|
                 type = event[1]

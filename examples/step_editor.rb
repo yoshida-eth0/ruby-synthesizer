@@ -15,9 +15,7 @@ synth = PolySynth.new(
   oscillators: [
     Oscillator.new(
       shape: Shape::SquareSawtooth,
-      uni_num: ModulationValue.new(4)
-        .add(Modulation::Lfo.new(
-        )),
+      uni_num: 4,
       uni_detune: 0.1,
     ),
   ],

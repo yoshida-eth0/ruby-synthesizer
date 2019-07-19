@@ -1,6 +1,30 @@
 module Synthesizer
   class Note
     NOTE_TABLE = [:"C", :"C#/Db", :"D", :"D#/Eb", :"E", :"F", :"F#/Gb", :"G", :"G#/Ab", :"A", :"A#/Bb", :"B"].freeze
+    NOTE_NAME_TABLE = {
+      :"C" => 0,
+      :"C#/Db" => 1,
+      :"C#" => 1,
+      :"Db" => 1,
+      :"D" =>  2,
+      :"D#/Eb" => 3,
+      :"D#" => 3,
+      :"Eb" => 3,
+      :"E" => 4,
+      :"F" => 5,
+      :"F#/Gb" => 6,
+      :"F#" => 6,
+      :"Gb" => 6,
+      :"G" => 7,
+      :"G#/Ab" => 8,
+      :"G#" => 8,
+      :"Ab" => 8,
+      :"A" => 9,
+      :"A#/Bb" => 10,
+      :"A#" => 10,
+      :"Bb" => 10,
+      :"B" => 11
+    }.freeze
 
     attr_reader :num
 
@@ -21,10 +45,10 @@ module Synthesizer
     end
 
     def self.create(name, octave)
-      name = name.to_s
+      name = name.to_sym
       octave = octave.to_i
 
-      note_index = NOTE_TABLE.index(name)
+      note_index = NOTE_NAME_TABLE[name]
       if !note_index
         raise Error, "not found note name: #{name}"
       end

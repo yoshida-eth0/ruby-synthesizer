@@ -45,7 +45,9 @@ module Synthesizer
       end
     end
 
-    def note_on(note)
+    # @param note [Synthesizer::Note]
+    # @param velocity [Float] volume percent (0.0~1.0)
+    def note_on(note, velocity: 1.0)
       # Note Off
       note_off(note)
 
@@ -54,12 +56,13 @@ module Synthesizer
         @glide.target = note.num
       else
         # Note On
-        @perform = NotePerform.new(self, note)
+        @perform = NotePerform.new(self, note, velocity)
         @glide.base = note.num
       end
       @note_nums << note.num        
     end
 
+    # @param note [Synthesizer::Note]
     def note_off(note)
       # Note Off
       @note_nums.delete_if {|note_num| note_num==note.num}

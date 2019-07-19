@@ -3,14 +3,17 @@ module Synthesizer
 
     attr_reader :synth
     attr_reader :note
+    attr_reader :velocity
 
-    def initialize(synth, note)
+    def initialize(synth, note, velocity)
       @synth = synth
+      @note = note
+      @velocity = velocity
+
       @processors = synth.oscillators.map {|osc|
         synth.processor.generator(osc, self)
       }
 
-      @note = note
       @note_on = true
       @released = false
     end

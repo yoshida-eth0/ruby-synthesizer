@@ -33,7 +33,7 @@ module Synthesizer
 
               window_size.times.each {|i|
                 # Oscillator, Amplifier
-                volume = volume_mod.next
+                volume = volume_mod.next * note_perform.velocity
                 tune_semis = tune_semis_mod.next + synth.pitch_bend
                 tune_cents = tune_cents_mod.next
 
@@ -60,7 +60,7 @@ module Synthesizer
 
               window_size.times.each {|i|
                 # Oscillator, Amplifier
-                volume = volume_mod.next
+                volume = volume_mod.next * note_perform.velocity
                 pan = pan_mod.next
                 tune_semis = tune_semis_mod.next + synth.pitch_bend
                 tune_cents = tune_cents_mod.next

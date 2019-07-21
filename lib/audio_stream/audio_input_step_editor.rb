@@ -43,7 +43,7 @@ module AudioStream
               throw :break
             end
             if events.has_key?(i)
-              events[i].each {|event|
+              events[i].sort{|a,b| a[0]<=>b[0]}.each {|event|
                 type = event[1]
 
                 case type

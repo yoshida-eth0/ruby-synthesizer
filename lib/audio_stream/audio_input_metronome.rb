@@ -9,7 +9,7 @@ module AudioStream
       @beat = beat.to_i
       @repeat = repeat
 
-      @synth = Synthesizer::Poly.new(
+      @synth = Synthesizer::PolySynth.new(
         oscillators: Synthesizer::Oscillator.new(
           shape: Synthesizer::Shape::Sine,
           phase: 0,

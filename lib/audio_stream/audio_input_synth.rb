@@ -10,10 +10,6 @@ module AudioStream
       @soundinfo = soundinfo
     end
 
-    def name
-      "Synth"
-    end
-
     def each(&block)
       Enumerator.new do |y|
         loop {

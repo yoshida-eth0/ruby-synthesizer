@@ -1,5 +1,5 @@
 module AudioStream
-  class AudioInputSynth < Rx::Subject
+  class AudioInputSynth
     include AudioInput
 
     def initialize(synth, soundinfo:)

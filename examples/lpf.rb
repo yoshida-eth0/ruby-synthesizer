@@ -1,5 +1,5 @@
 require 'synthesizer'
-require 'audio_stream/core_ext'
+require 'audio_stream'
 
 include AudioStream
 include Synthesizer
@@ -66,7 +66,6 @@ track1 = AudioInput.buffer(bufs)
 stereo_out = AudioOutput.device(soundinfo: soundinfo)
 
 track1
-  .stream
   .send_to(stereo_out, gain: 0.25)
 
 

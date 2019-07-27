@@ -1,5 +1,5 @@
 module AudioStream
-  class AudioInputStepEditor < Rx::Subject
+  class AudioInputStepEditor
     include AudioInput
 
     def initialize(synth, step_editor)
@@ -9,6 +9,18 @@ module AudioStream
       @step_editor = step_editor
 
       @soundinfo = synth.soundinfo
+    end
+
+    def connect
+      self
+    end
+
+    def disconnect
+      self
+    end
+
+    def connected?
+      true
     end
 
     def each(&block)

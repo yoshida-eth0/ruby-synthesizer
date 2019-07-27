@@ -1,5 +1,5 @@
 require 'synthesizer'
-require 'audio_stream/core_ext'
+require 'audio_stream'
 
 include AudioStream
 include AudioStream::Fx
@@ -37,7 +37,6 @@ bus1 = AudioBus.new
 # Mixer
 
 track1
-  .stream
   .fx(gain)
   .send_to(bus1)
 

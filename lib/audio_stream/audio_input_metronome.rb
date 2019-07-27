@@ -1,5 +1,5 @@
 module AudioStream
-  class AudioInputMetronome < Rx::Subject
+  class AudioInputMetronome
     include AudioInput
 
     def initialize(bpm:, beat: 4, repeat: nil, soundinfo:)

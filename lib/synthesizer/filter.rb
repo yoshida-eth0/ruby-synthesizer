@@ -10,5 +10,6 @@ require 'synthesizer/filter/parallel'
 
 module Synthesizer
   module Filter
+    DEFAULT_Q = AudioStream::Fx::BiquadFilter::DEFAULT_Q
   end
 end

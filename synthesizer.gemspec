@@ -30,5 +30,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "minitest", "~> 5.0"
 
-  spec.add_dependency "audio_stream", ">= 1.3.0"
+  spec.add_dependency "audio_stream", ">= 2.0.0"
 end

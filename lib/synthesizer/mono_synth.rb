@@ -40,7 +40,7 @@ module Synthesizer
           @perform = nil
         end
       end
-      buf || AudioStream::Buffer.float(@soundinfo.window_size, @soundinfo.channels)
+      buf || AudioStream::Buffer.create(@soundinfo.window_size, @soundinfo.channels)
     end
 
     # @param note [Synthesizer::Note]

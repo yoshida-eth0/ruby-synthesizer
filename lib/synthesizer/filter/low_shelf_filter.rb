@@ -1,9 +1,9 @@
 module Synthesizer
   module Filter
     class LowShelfFilter
-      def initialize(freq:, q: nil, gain:)
+      def initialize(freq:, q: DEFAULT_Q, gain: 1.0)
         @freq = ModulationValue.create(freq)
-        @q = ModulationValue.create(q || 1.0 / Math.sqrt(2))
+        @q = ModulationValue.create(q)
         @gain = ModulationValue.create(gain)
       end
 

@@ -19,15 +19,13 @@ module Synthesizer
       end
 
       class Fx
-        include AudioStream::Fx::BangProcess
-
         def initialize(fxs)
           @fxs = fxs
         end
 
-        def process!(input)
+        def process(input)
           @fxs.each {|fx|
-            fx.process!(input)
+            input = fx.process(input)
           }
           input
         end

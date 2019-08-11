@@ -37,9 +37,11 @@ module Synthesizer
         # delete released note performs
         @performs.delete_if {|note_num, perform| perform.released? }
 
-        buf = bufs.inject(:+)
+        if 0<bufs.length
+          buf = AudioStream::Buffer.merge(bufs)
+        end
       end
-      buf || AudioStream::Buffer.float(@soundinfo.window_size, @soundinfo.channels)
+      buf || AudioStream::Buffer.create(@soundinfo.window_size, @soundinfo.channels)
     end
 
     # @param note [Synthesizer::Note]

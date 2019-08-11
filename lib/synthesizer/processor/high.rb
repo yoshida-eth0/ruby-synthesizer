@@ -29,7 +29,8 @@ module Synthesizer
           case channels
           when 1
             loop {
-              buf = AudioStream::Buffer.float(window_size, channels)
+              buf = AudioStream::Buffer.create_mono(window_size)
+              dst0 = buf.streams[0]
 
               window_size.times.each {|i|
                 # Oscillator, Amplifier
@@ -49,14 +50,16 @@ module Synthesizer
                   mval = filter_fx.process_mono(mval)
                 end
 
-                buf[i] = mval
+                dst0[i] = mval
               }
 
               y << buf
             }
           when 2
             loop {
-              buf = AudioStream::Buffer.float(window_size, channels)
+              buf = AudioStream::Buffer.create_stereo(window_size)
+              dst0 = buf.streams[0]
+              dst1 = buf.streams[1]
 
               window_size.times.each {|i|
                 # Oscillator, Amplifier
@@ -76,7 +79,8 @@ module Synthesizer
                   sval = filter_fx.process_stereo(sval)
                 end
 
-                buf[i] = sval
+                dst0[i] = sval[0]
+                dst1[i] = sval[1]
               }
 
               y << buf

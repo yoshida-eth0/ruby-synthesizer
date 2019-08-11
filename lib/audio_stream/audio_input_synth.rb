@@ -6,8 +6,19 @@ module AudioStream
       super()
 
       @synth = synth
-
       @soundinfo = soundinfo
+    end
+
+    def connect
+      self
+    end
+
+    def disconnect
+      self
+    end
+
+    def connected?
+      true
     end
 
     def each(&block)

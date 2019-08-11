@@ -1,7 +1,7 @@
 module Synthesizer
   module Filter
     class PeakingFilter
-      def initialize(freq:, bandwidth: 1.0, gain:)
+      def initialize(freq:, bandwidth: 1.0, gain: 40.0)
         @freq = ModulationValue.create(freq)
         @bandwidth = ModulationValue.create(bandwidth)
         @gain = ModulationValue.create(gain)

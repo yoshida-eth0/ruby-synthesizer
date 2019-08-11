@@ -1,9 +1,9 @@
 module Synthesizer
   module Filter
     class HighPassFilter
-      def initialize(freq:, q: nil)
+      def initialize(freq:, q: DEFAULT_Q)
         @freq = ModulationValue.create(freq)
-        @q = ModulationValue.create(q || 1.0 / Math.sqrt(2))
+        @q = ModulationValue.create(q)
       end
 
       def generator(note_perform, framerate, &block)

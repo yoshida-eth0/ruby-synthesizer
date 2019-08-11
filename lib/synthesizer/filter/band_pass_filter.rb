@@ -1,7 +1,7 @@
 module Synthesizer
   module Filter
     class BandPassFilter
-      def initialize(freq:, bandwidth:)
+      def initialize(freq:, bandwidth: 1.0)
         @freq = ModulationValue.create(freq)
         @bandwidth = ModulationValue.create(bandwidth)
       end

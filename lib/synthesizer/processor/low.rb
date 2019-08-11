@@ -29,7 +29,8 @@ module Synthesizer
           case channels
           when 1
             loop {
-              buf = AudioStream::Buffer.float(window_size, channels)
+              buf = AudioStream::Buffer.create_mono(window_size)
+              dst0 = buf.streams[0]
 
               # Oscillator, Amplifier
               volume = volume_mod.next * note_perform.velocity
@@ -41,20 +42,22 @@ module Synthesizer
 
               window_size.times.each {|i|
                 val = unison.next(uni_num, uni_detune, volume, 0.0, tune_semis, tune_cents)
-                buf[i] = (val[0] + val[1]) / 2.0
+                dst0[i] = (val[0] + val[1]) / 2.0
               }
 
               # Filter
               if filter_mod
                 filter_fx = filter_mod.next
-                filter_fx.process!(buf)
+                buf = filter_fx.process(buf)
               end
 
               y << buf
             }
           when 2
             loop {
-              buf = AudioStream::Buffer.float(window_size, channels)
+              buf = AudioStream::Buffer.create_stereo(window_size)
+              dst0 = buf.streams[0]
+              dst1 = buf.streams[1]
 
               # Oscillator, Amplifier
               volume = volume_mod.next * note_perform.velocity
@@ -66,13 +69,15 @@ module Synthesizer
               uni_detune = uni_detune_mod.next
 
               window_size.times.each {|i|
-                buf[i] = unison.next(uni_num, uni_detune, volume, pan, tune_semis, tune_cents)
+                val = unison.next(uni_num, uni_detune, volume, pan, tune_semis, tune_cents)
+                dst0[i] = val[0]
+                dst1[i] = val[1]
               }
 
               # Filter
               if filter_mod
                 filter_fx = filter_mod.next
-                filter_fx.process!(buf)
+                buf = filter_fx.process(buf)
               end
 
               y << buf

@@ -5,17 +5,15 @@ module Synthesizer
         @filters = filters
       end
 
-      def generator(note_perform, framerate, &block)
-        Enumerator.new do |y|
-          filter_mods = @filters.map {|filter|
-            filter.generator(note_perform, framerate)
-          }
+      def generator(note_perform, framerate)
+        filter_mods = @filters.map {|filter|
+          filter.generator(note_perform, framerate)
+        }
 
-          loop {
-            fxs = filter_mods.map(&:next)
-            y << Fx.new(fxs)
-          }
-        end.each(&block)
+        -> {
+          fxs = filter_mods.map(&:[])
+          Fx.new(fxs)
+        }
       end
 
       class Fx

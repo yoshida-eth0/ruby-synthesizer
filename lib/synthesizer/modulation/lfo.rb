@@ -47,17 +47,20 @@ module Synthesizer
 
       def amp_generator(note_perform, framerate, depth, &block)
         bottom = 1.0 - depth
+        gen = generator(note_perform, framerate)
 
-        generator(note_perform, framerate).lazy.map {|val|
-          val = (val + 1) / 2
+        -> {
+          val = (gen.next + 1) / 2
           val * depth + bottom
-        }.each(&block)
+        }
       end
 
       def balance_generator(note_perform, framerate, depth, &block)
-        generator(note_perform, framerate).lazy.map {|val|
-          val * depth
-        }.each(&block)
+        gen = generator(note_perform, framerate)
+
+        -> {
+          gen.next * depth
+        }
       end
     end
   end

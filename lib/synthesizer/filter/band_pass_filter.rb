@@ -6,19 +6,17 @@ module Synthesizer
         @bandwidth = ModulationValue.create(bandwidth)
       end
 
-      def generator(note_perform, framerate, &block)
-        Enumerator.new do |y|
-          soundinfo = note_perform.synth.soundinfo
-          filter = AudioStream::Fx::BandPassFilter.new(soundinfo)
+      def generator(note_perform, framerate)
+        soundinfo = note_perform.synth.soundinfo
+        filter = AudioStream::Fx::BandPassFilter.new(soundinfo)
 
-          freq_mod = ModulationValue.balance_generator(note_perform, framerate, @freq)
-          bandwidth_mod = ModulationValue.balance_generator(note_perform, framerate, @bandwidth)
+        freq_mod = ModulationValue.balance_generator(note_perform, framerate, @freq)
+        bandwidth_mod = ModulationValue.balance_generator(note_perform, framerate, @bandwidth)
 
-          loop {
-            filter.update_coef(freq: freq_mod.next, bandwidth: bandwidth_mod.next)
-            y << filter
-          }
-        end.each(&block)
+        -> {
+          filter.update_coef(freq: freq_mod[], bandwidth: bandwidth_mod[])
+          filter
+        }
       end
     end
   end

@@ -73,36 +73,36 @@ module Synthesizer
         end.each(&block)
       end
 
-      def generator(note_perform, framerate, release_sustain:, &block)
-        Enumerator.new do |y|
-          note_on = note_on_envelope(framerate, sustain: true)
-          note_off = note_off_envelope(framerate, sustain: release_sustain)
-          last = 0.0
+      def generator(note_perform, framerate, release_sustain:)
+        note_on = note_on_envelope(framerate, sustain: true)
+        note_off = note_off_envelope(framerate, sustain: release_sustain)
+        last = 0.0
 
-          loop {
-            if note_perform.note_on?
-              last = note_on.next
-              y << last
-            else
-              y << note_off.next * last
-            end
-          }
-        end.each(&block)
+        -> {
+          if note_perform.note_on?
+            last = note_on.next
+          else
+            note_off.next * last
+          end
+        }
       end
 
 
       def amp_generator(note_perform, framerate, depth, &block)
         bottom = 1.0 - depth
+        gen = generator(note_perform, framerate, release_sustain: 0.0<bottom)
 
-        generator(note_perform, framerate, release_sustain: 0.0<bottom).lazy.map {|val|
-          val * depth + bottom
-        }.each(&block)
+        -> {
+          gen[] * depth + bottom
+        }
       end
 
       def balance_generator(note_perform, framerate, depth, &block)
-        generator(note_perform, framerate, release_sustain: true).lazy.map {|val|
-          val * depth
-        }.each(&block)
+        gen = generator(note_perform, framerate, release_sustain: true)
+
+        -> {
+          gen[] * depth
+        }
       end
 
       def plot_data(framerate: 44100)

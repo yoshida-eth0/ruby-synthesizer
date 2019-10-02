@@ -26,42 +26,46 @@ module Synthesizer
         @diff = target - @current
       end
 
-      def generator(note_perform, samplerate, &block)
-        Enumerator.new do |yld|
-          rate = @time * samplerate
+      def generator(note_perform, samplerate)
+        rate = @time * samplerate
 
-          loop {
-            if note_perform.note_on?
-              # Note On
-              if 0<@time && @target!=@current
-                # Gliding
-                x = @diff / rate
-                if x.abs<(@target-@current).abs
-                  @current += x
-                else
-                  @current = @target
-                end
+        -> {
+          ret = nil
 
-                yld << @current - @base
+          if note_perform.note_on?
+            # Note On
+            if 0<@time && @target!=@current
+              # Gliding
+              x = @diff / rate
+              if x.abs<(@target-@current).abs
+                @current += x
               else
-                # Stay
-                yld << @target - @base
+                @current = @target
               end
+
+              ret = @current - @base
             else
-              # Note Off
-              @current = 0.0
-              @target = 0.0
-              @diff = 0.0
-              yld << 0.0
+              # Stay
+              ret = @target - @base
             end
-          }
-        end.each(&block)
+          else
+            # Note Off
+            @current = 0.0
+            @target = 0.0
+            @diff = 0.0
+            ret = 0.0
+          end
+
+          ret
+        }
       end
 
-      def balance_generator(note_perform, samplerate, depth, &block)
-        generator(note_perform, samplerate).lazy.map {|val|
-          val * depth
-        }.each(&block)
+      def balance_generator(note_perform, samplerate, depth)
+        gen = generator(note_perform, samplerate)
+
+        -> {
+          gen[] * depth
+        }
       end
 
       def to_modval

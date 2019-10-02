@@ -20,7 +20,7 @@ module Synthesizer
 
     def next
       begin
-        @processors.map(&:next).inject(:+)
+        @processors.map(&:[]).inject(:+)
       rescue StopIteration => e
         @released = true
         nil

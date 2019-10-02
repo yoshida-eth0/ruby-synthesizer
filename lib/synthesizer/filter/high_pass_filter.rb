@@ -6,19 +6,17 @@ module Synthesizer
         @q = ModulationValue.create(q)
       end
 
-      def generator(note_perform, framerate, &block)
-        Enumerator.new do |y|
-          soundinfo = note_perform.synth.soundinfo
-          filter = AudioStream::Fx::HighPassFilter.new(soundinfo)
+      def generator(note_perform, framerate)
+        soundinfo = note_perform.synth.soundinfo
+        filter = AudioStream::Fx::HighPassFilter.new(soundinfo)
 
-          freq_mod = ModulationValue.balance_generator(note_perform, framerate, @freq)
-          q_mod = ModulationValue.balance_generator(note_perform, framerate, @q)
+        freq_mod = ModulationValue.balance_generator(note_perform, framerate, @freq)
+        q_mod = ModulationValue.balance_generator(note_perform, framerate, @q)
 
-          loop {
-            filter.update_coef(freq: freq_mod.next, q: q_mod.next)
-            y << filter
-          }
-        end.each(&block)
+        -> {
+          filter.update_coef(freq: freq_mod[], q: q_mod[])
+          filter
+        }
       end
     end
   end

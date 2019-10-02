@@ -49,12 +49,10 @@ module Synthesizer
         }
       }
 
-      Enumerator.new do |y|
-        loop {
-          depth = mods.map(&:next).inject(1.0, &:*)
-          y << value * depth
-        }
-      end
+      -> {
+        depth = mods.map(&:[]).inject(1.0, &:*)
+        value * depth
+      }
     end
 
     def self.balance_generator(note_perform, framerate, *modvals, center: 0)
@@ -72,12 +70,10 @@ module Synthesizer
         }
       }
 
-      Enumerator.new do |y|
-        loop {
-          depth = mods.map(&:next).sum
-          y << value + depth
-        }
-      end
+      -> {
+        depth = mods.map(&:[]).sum
+        value + depth
+      }
     end
   end
 end

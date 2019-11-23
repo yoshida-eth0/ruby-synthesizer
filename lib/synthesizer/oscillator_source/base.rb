@@ -26,7 +26,7 @@ module Synthesizer
         raise Error, "not implemented abstruct method: #{self.class.name}.sample(context, phase)"
       end
 
-      def generate_context(soundinfo, phase)
+      def generate_context(soundinfo, note_perform, phase)
         Context.new(soundinfo.window_size, soundinfo.channels, ShapePos.new(phase: phase))
       end
 

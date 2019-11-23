@@ -13,7 +13,7 @@ module Synthesizer
         result
       end
 
-      def generate_context(soundinfo, phase)
+      def generate_context(soundinfo, note_perform, phase)
         PulseContext.new(soundinfo.window_size, soundinfo.channels, phase, ShapePos.new(phase: phase), -1.0)
       end
 

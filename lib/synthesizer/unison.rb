@@ -9,7 +9,7 @@ module Synthesizer
       @note_perform = note_perform
       @source = source
       @source_contexts = UNI_NUM_MAX.times.map {|i|
-        source.generate_context(synth.soundinfo, phase.value)
+        source.generate_context(synth.soundinfo, note_perform,  phase.value)
       }
     end
 

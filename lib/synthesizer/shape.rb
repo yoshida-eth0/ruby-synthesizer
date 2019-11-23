@@ -15,8 +15,14 @@ module Synthesizer
     WhiteNoise = ->(phase) { Random.rand(-1.0...1.0) }
 
     # LFO
-    RampUp = ->(phase) { (phase % 1) * 2 - 1 }
-    RampDown = ->(phase) { (phase % 1) * -2 + 1 }
+    RampUp = ->(phase) { (phase % 1.0) * 2 - 1 }
+    RampDown = ->(phase) { (phase % 1.0) * -2 + 1 }
+
+    PositiveRampUp = ->(phase) { phase % 1.0}
+    PositiveRampDown = ->(phase) { (phase % 1.0) * -1 + 1}
+
+    ForeverRampUp = ->(phase) { phase}
+    ForeverRampDown = ->(phase) { -phase}
 
     # Complex
     self.constants.tap {|consts|

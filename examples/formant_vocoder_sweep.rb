@@ -51,9 +51,9 @@ bufs += 100.times.map {|_| synth.next}
 synth.note_off(Note.new(base+4))
 bufs += 20.times.map {|_| synth.next}
 
-synth.note_on(Note.new(base+8))
+synth.note_on(Note.new(base+7))
 bufs += 100.times.map {|_| synth.next}
-synth.note_off(Note.new(base+8))
+synth.note_off(Note.new(base+7))
 bufs += 20.times.map {|_| synth.next}
 
 bufs += 50.times.map {|_| synth.next}

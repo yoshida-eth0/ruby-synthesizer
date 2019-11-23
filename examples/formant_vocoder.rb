@@ -72,7 +72,7 @@ bufs += 50.times.map {|_| synth.next}
 track1 = AudioInput.buffer(bufs)
 
 stereo_out = AudioOutput.device(soundinfo: soundinfo)
-#stereo_out = AudioOutput.file("formatvocoder_osc.wav", soundinfo: soundinfo)
+#stereo_out = AudioOutput.file("formatvocoder.wav", soundinfo: soundinfo)
 
 track1
   .send_to(stereo_out, gain: 1.0)

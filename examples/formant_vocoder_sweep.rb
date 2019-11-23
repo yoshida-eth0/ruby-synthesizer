@@ -20,8 +20,8 @@ synth = PolySynth.new(
         pronunciation: ModulationValue.new(0)
           .add(Modulation::Lfo.new(
             shape: Shape::ForeverRampUp,
-            rate: 0.2,
-          ), depth: 6.0),
+            rate: 2.0,
+          )),
       ),
       phase: 0.0,
     ),
@@ -42,19 +42,19 @@ bufs = []
 
 base = 36
 synth.note_on(Note.new(base))
-bufs += 175.times.map {|_| synth.next}
+bufs += 100.times.map {|_| synth.next}
 synth.note_off(Note.new(base))
-bufs += 25.times.map {|_| synth.next}
+bufs += 20.times.map {|_| synth.next}
 
 synth.note_on(Note.new(base+4))
-bufs += 175.times.map {|_| synth.next}
+bufs += 100.times.map {|_| synth.next}
 synth.note_off(Note.new(base+4))
-bufs += 25.times.map {|_| synth.next}
+bufs += 20.times.map {|_| synth.next}
 
 synth.note_on(Note.new(base+8))
-bufs += 175.times.map {|_| synth.next}
+bufs += 100.times.map {|_| synth.next}
 synth.note_off(Note.new(base+8))
-bufs += 25.times.map {|_| synth.next}
+bufs += 20.times.map {|_| synth.next}
 
 bufs += 50.times.map {|_| synth.next}
 
@@ -62,7 +62,7 @@ bufs += 50.times.map {|_| synth.next}
 track1 = AudioInput.buffer(bufs)
 
 stereo_out = AudioOutput.device(soundinfo: soundinfo)
-#stereo_out = AudioOutput.file("formatvocoder_osc.wav", soundinfo: soundinfo)
+#stereo_out = AudioOutput.file("formatvocoder_sweep.wav", soundinfo: soundinfo)
 
 track1
   .send_to(stereo_out, gain: 1.0)

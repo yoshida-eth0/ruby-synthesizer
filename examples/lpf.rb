@@ -14,7 +14,7 @@ soundinfo = SoundInfo.new(
 synth = PolySynth.new(
   oscillators: [
     Oscillator.new(
-      shape: Shape::WhiteNoise
+      source: OscillatorSource::WhiteNoise.instance
     ),
   ],
   filter: Filter::Serial.new(

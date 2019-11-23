@@ -2,15 +2,15 @@ module Synthesizer
   class Unison
     UNI_NUM_MAX = 16
 
-    def initialize(note_perform, shape, phase)
-      @note_perform = note_perform
-      @shape = shape
-      @poss = UNI_NUM_MAX.times.map {|i|
-        ShapePos.new(phase: phase.value)
-      }
-
+    def initialize(note_perform, source, phase)
       synth = note_perform.synth
       @samplerate = synth.soundinfo.samplerate
+
+      @note_perform = note_perform
+      @source = source
+      @source_contexts = UNI_NUM_MAX.times.map {|i|
+        source.generate_context(synth.soundinfo, phase.value)
+      }
     end
 
     def next(uni_num, uni_detune, volume, pan, tune_semis, tune_cents)
@@ -20,11 +20,8 @@ module Synthesizer
         uni_num = UNI_NUM_MAX
       end
 
-      val_l = 0.0
-      val_r = 0.0
-
-      uni_num.ceil.times {|i|
-        pos = @poss[i]
+      uni_num.ceil.times.map {|i|
+        context = @source_contexts[i]
 
         uni_volume = 1.0
         if uni_num<i
@@ -40,12 +37,8 @@ module Synthesizer
         hz = @note_perform.note.hz(semis: tune_semis, cents: tune_cents + detune_cents)
         delta = hz / @samplerate
 
-        val = @shape[pos.next(delta)] * uni_volume
-        val_l += val * l_gain
-        val_r += val * r_gain
-      }
-
-      [val_l * volume / uni_num, val_r * volume / uni_num]
+        @source.next(context, delta, l_gain * volume * uni_volume / uni_num, r_gain * volume * uni_volume / uni_num)
+      }.inject(:+)
     end
   end
 end

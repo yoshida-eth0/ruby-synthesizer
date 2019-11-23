@@ -1,0 +1,5 @@
+require 'synthesizer/shape'
+require 'synthesizer/oscillator_source/base'
+require 'synthesizer/oscillator_source/basic'
+require 'synthesizer/oscillator_source/pulse'
+require 'synthesizer/oscillator_source/formant_vocoder'

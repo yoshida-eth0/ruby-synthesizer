@@ -30,6 +30,5 @@ module Synthesizer
         }
       }
     }
-
   end
 end

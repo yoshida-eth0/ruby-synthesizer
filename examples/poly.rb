@@ -14,20 +14,20 @@ soundinfo = SoundInfo.new(
 synth = PolySynth.new(
   oscillators: [
     Oscillator.new(
-      shape: Shape::SquareSawtooth,
+      source: OscillatorSource::SquareSawtooth.instance,
       uni_num: ModulationValue.new(4)
         .add(Modulation::Lfo.new(
         )),
       uni_detune: 0.1,
     ),
     #Oscillator.new(
-    #  shape: Shape::SquareSawtooth,
+    #  source: OscillatorSource::SquareSawtooth.instance,
     #  tune_cents: 0.1,
     #  uni_num: 4,
     #  uni_detune: 0.1,
     #),
     #Oscillator.new(
-    #  shape: Shape::SquareSawtooth,
+    #  source: OscillatorSource::SquareSawtooth.instance,
     #  tune_semis: -12,
     #  uni_num: 4,
     #  uni_detune: 0.1,

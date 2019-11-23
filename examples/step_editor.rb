@@ -14,7 +14,7 @@ soundinfo = SoundInfo.new(
 synth = PolySynth.new(
   oscillators: [
     Oscillator.new(
-      shape: Shape::SquareSawtooth,
+      source: OscillatorSource::SquareSawtooth.instance,
       uni_num: 4,
       uni_detune: 0.1,
     ),

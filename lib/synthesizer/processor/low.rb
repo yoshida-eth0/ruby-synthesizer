@@ -5,7 +5,6 @@ module Synthesizer
         synth = note_perform.synth
         filter = synth.filter
         amp = synth.amplifier
-        channels = synth.soundinfo.channels
         window_size = synth.soundinfo.window_size
         framerate = synth.soundinfo.samplerate.to_f / window_size
 
@@ -17,7 +16,7 @@ module Synthesizer
 
         uni_num_mod = ModulationValue.balance_generator(note_perform, framerate, osc.uni_num, amp.uni_num, center: 1.0)
         uni_detune_mod = ModulationValue.balance_generator(note_perform, framerate, osc.uni_detune, amp.uni_detune)
-        unison = Unison.new(note_perform, osc.shape, osc.phase)
+        unison = Unison.new(note_perform, osc.source, osc.phase)
 
         # Filter
         filter_mod = nil
@@ -25,63 +24,26 @@ module Synthesizer
           filter_mod = filter.generator(note_perform, framerate)
         end
 
-        case channels
-        when 1
-          -> {
-            buf = AudioStream::Buffer.create_mono(window_size)
-            dst0 = buf.streams[0]
+        -> {
+          # Oscillator, Amplifier
+          volume = volume_mod[] * note_perform.velocity
+          pan = pan_mod[]
+          tune_semis = tune_semis_mod[] + synth.pitch_bend
+          tune_cents = tune_cents_mod[]
 
-            # Oscillator, Amplifier
-            volume = volume_mod[] * note_perform.velocity
-            tune_semis = tune_semis_mod[] + synth.pitch_bend
-            tune_cents = tune_cents_mod[]
+          uni_num = uni_num_mod[]
+          uni_detune = uni_detune_mod[]
 
-            uni_num = uni_num_mod[]
-            uni_detune = uni_detune_mod[]
+          buf = unison.next(uni_num, uni_detune, volume, pan, tune_semis, tune_cents)
 
-            window_size.times.each {|i|
-              val = unison.next(uni_num, uni_detune, volume, 0.0, tune_semis, tune_cents)
-              dst0[i] = (val[0] + val[1]) / 2.0
-            }
+          # Filter
+          if filter_mod
+            filter_fx = filter_mod[]
+            buf = filter_fx.process(buf)
+          end
 
-            # Filter
-            if filter_mod
-              filter_fx = filter_mod[]
-              buf = filter_fx.process(buf)
-            end
-
-            buf
-          }
-        when 2
-          -> {
-            buf = AudioStream::Buffer.create_stereo(window_size)
-            dst0 = buf.streams[0]
-            dst1 = buf.streams[1]
-
-            # Oscillator, Amplifier
-            volume = volume_mod[] * note_perform.velocity
-            pan = pan_mod[]
-            tune_semis = tune_semis_mod[] + synth.pitch_bend
-            tune_cents = tune_cents_mod[]
-
-            uni_num = uni_num_mod[]
-            uni_detune = uni_detune_mod[]
-
-            window_size.times.each {|i|
-              val = unison.next(uni_num, uni_detune, volume, pan, tune_semis, tune_cents)
-              dst0[i] = val[0]
-              dst1[i] = val[1]
-            }
-
-            # Filter
-            if filter_mod
-              filter_fx = filter_mod[]
-              buf = filter_fx.process(buf)
-            end
-
-            buf
-          }
-        end
+          buf
+        }
       end
     end
   end

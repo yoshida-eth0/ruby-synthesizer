@@ -44,7 +44,6 @@ synth = MonoSynth.new(
       ), depth: 1.0),
     ),
   glide: 0.2,
-  quality: Quality::LOW,
   soundinfo: soundinfo,
 )
 bufs = []

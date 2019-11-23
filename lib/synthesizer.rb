@@ -20,7 +20,6 @@ require 'synthesizer/note'
 require 'synthesizer/note_perform'
 require 'synthesizer/unison'
 require 'synthesizer/processor'
-require 'synthesizer/quality'
 require 'synthesizer/utils'
 
 module Synthesizer

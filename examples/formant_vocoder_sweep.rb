@@ -36,7 +36,6 @@ synth = PolySynth.new(
         release: 0.2
       ), depth: 1.0),
     ),
-  quality: Quality::LOW,
   soundinfo: soundinfo,
 )
 bufs = []

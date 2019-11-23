@@ -6,7 +6,6 @@ module Synthesizer
     attr_reader :amplifier
     attr_reader :processor
 
-    attr_reader :quality
     attr_reader :soundinfo
 
     attr_reader :glide
@@ -16,15 +15,14 @@ module Synthesizer
     # @param filter [Synthesizer::Filter] filter
     # @param amplifier [Synthesizer::Amplifier] amplifier
     # @param soundinfo [AudioStream::SoundInfo]
-    def initialize(oscillators:, filter: nil, amplifier:, quality: Quality::LOW, soundinfo:)
+    def initialize(oscillators:, filter: nil, amplifier:, soundinfo:)
       @oscillators = [oscillators].flatten.compact
       @filter = filter
       @amplifier = amplifier
 
-      @quality = quality
       @soundinfo = soundinfo
 
-      @processor = Processor.create(quality)
+      @processor = Processor.new
       @performs = {}
       @pitch_bend = 0.0
     end

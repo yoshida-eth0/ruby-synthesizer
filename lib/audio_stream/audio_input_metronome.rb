@@ -11,7 +11,7 @@ module AudioStream
 
       @synth = Synthesizer::PolySynth.new(
         oscillators: Synthesizer::Oscillator.new(
-          shape: Synthesizer::Shape::Sine,
+          source: Synthesizer::OscillatorSource::Sine,
           phase: 0,
         ),
         amplifier: Synthesizer::Amplifier.new(
@@ -24,7 +24,6 @@ module AudioStream
               release: 0.0
             ), depth: 1.0),
         ),
-        quality: Synthesizer::Quality::LOW,
         soundinfo: soundinfo,
       )
 

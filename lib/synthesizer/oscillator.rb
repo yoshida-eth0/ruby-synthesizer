@@ -22,7 +22,7 @@ module Synthesizer
     # @param sync [Integer] TODO not implemented
     # @param uni_num [Float] oscillator voicing number (1.0~16.0)
     # @param uni_detune [Float] oscillator voicing detune percent. 0.01=1cent 1.0=semitone (0.0~1.0)
-    def initialize(source: OscillatorSource::Sine, volume: 1.0, pan: 0.0, tune_semis: 0, tune_cents: 0, sym: 0, phase: nil, sync: 0, uni_num: 1.0, uni_detune: 0.0)
+    def initialize(source: OscillatorSource::Sine.instance, volume: 1.0, pan: 0.0, tune_semis: 0, tune_cents: 0, sym: 0, phase: nil, sync: 0, uni_num: 1.0, uni_detune: 0.0)
       @source = source
 
       @volume = ModulationValue.create(volume)

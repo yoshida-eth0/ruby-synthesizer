@@ -9,7 +9,7 @@ module Synthesizer
       @mods = []
 
       mods.each {|mod, depth|
-        add(mod, depth: depth)
+        add(mod, depth: depth || 1.0)
       }
     end
 

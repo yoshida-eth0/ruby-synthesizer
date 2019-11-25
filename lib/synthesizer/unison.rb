@@ -20,25 +20,37 @@ module Synthesizer
         uni_num = UNI_NUM_MAX
       end
 
-      uni_num.ceil.times.map {|i|
-        context = @source_contexts[i]
+      if uni_num==1.0
+        context = @source_contexts[0]
 
-        uni_volume = 1.0
-        if uni_num<i
-          uni_volume = uni_num % 1.0
-        end
+        l_gain, r_gain = Utils.panning(pan)
 
-        sign = i.even? ? 1 : -1
-        detune_cents = sign * (i/2) * uni_detune * 100
-        diff_pan = sign * (i/2) * uni_detune
-
-        l_gain, r_gain = Utils.panning(pan + diff_pan)
-
-        hz = @note_perform.note.hz(semis: tune_semis, cents: tune_cents + detune_cents)
+        hz = @note_perform.note.hz(semis: tune_semis, cents: tune_cents)
         delta = hz / @samplerate
 
-        @source.next(context, delta, l_gain * volume * uni_volume / uni_num, r_gain * volume * uni_volume / uni_num)
-      }.inject(:+)
+        @source.next(context, delta, l_gain * volume, r_gain * volume)
+      else
+        uni_num.ceil.times.map {|i|
+          j = i + 1.0
+          context = @source_contexts[i]
+
+          uni_volume = 1.0
+          if uni_num<i
+            uni_volume = uni_num % 1.0
+          end
+
+          sign = i.even? ? 1 : -1
+          detune_cents = sign * j * uni_detune * 100
+          diff_pan = sign * j * uni_detune
+
+          l_gain, r_gain = Utils.panning(pan + diff_pan)
+
+          hz = @note_perform.note.hz(semis: tune_semis, cents: tune_cents + detune_cents)
+          delta = hz / @samplerate
+
+          @source.next(context, delta, l_gain * volume * uni_volume / uni_num, r_gain * volume * uni_volume / uni_num)
+        }.inject(:+)
+      end
     end
   end
 end

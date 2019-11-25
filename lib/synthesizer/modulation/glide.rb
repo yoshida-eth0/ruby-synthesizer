@@ -32,7 +32,7 @@ module Synthesizer
         -> {
           ret = nil
 
-          if note_perform.note_on?
+          if !note_perform.released?
             # Note On
             if 0<@time && @target!=@current
               # Gliding

@@ -11,6 +11,7 @@ module Synthesizer
     attr_reader :sync
     attr_reader :uni_num
     attr_reader :uni_detune
+    attr_reader :uni_stereo
 
     # @param source [Synthesizer::OscillatorSource] oscillator waveform source
     # @param volume [Float] oscillator volume. mute=0.0 max=1.0
@@ -22,7 +23,8 @@ module Synthesizer
     # @param sync [Integer] TODO not implemented
     # @param uni_num [Float] oscillator voicing number (1.0~16.0)
     # @param uni_detune [Float] oscillator voicing detune percent. 0.01=1cent 1.0=semitone (0.0~1.0)
-    def initialize(source: OscillatorSource::Sine.instance, volume: 1.0, pan: 0.0, tune_semis: 0, tune_cents: 0, sym: 0, phase: nil, sync: 0, uni_num: 1.0, uni_detune: 0.0)
+    # @param uni_stereo [Float] oscillator voicing spread pan. -1.0=full inv 0.0=mono 1.0=full (-1.0~1.0)
+    def initialize(source: OscillatorSource::Sine.instance, volume: 1.0, pan: 0.0, tune_semis: 0, tune_cents: 0, sym: 0, phase: nil, sync: 0, uni_num: 1.0, uni_detune: 0.0, uni_stereo: 0.0)
       @source = source
 
       @volume = ModulationValue.create(volume)

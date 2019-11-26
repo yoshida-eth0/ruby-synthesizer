@@ -13,7 +13,7 @@ module Synthesizer
       }
     end
 
-    def next(uni_num, uni_detune, volume, pan, tune_semis, tune_cents)
+    def next(uni_num, uni_detune, uni_stereo, volume, pan, tune_semis, tune_cents)
       if uni_num<1.0
         uni_num = 1.0
       elsif UNI_NUM_MAX<uni_num
@@ -31,7 +31,6 @@ module Synthesizer
         @source.next(context, delta, l_gain * volume, r_gain * volume)
       else
         uni_num.ceil.times.map {|i|
-          j = i + 1.0
           context = @source_contexts[i]
 
           uni_volume = 1.0
@@ -40,8 +39,10 @@ module Synthesizer
           end
 
           sign = i.even? ? 1 : -1
-          detune_cents = sign * j * uni_detune * 100
-          diff_pan = sign * j * uni_detune
+          diff = sign * (i + 1.0) / (uni_num + 1.0)
+
+          detune_cents = uni_detune * diff * 100
+          diff_pan = uni_stereo * diff
 
           l_gain, r_gain = Utils.panning(pan + diff_pan)
 

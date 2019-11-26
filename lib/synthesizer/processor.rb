@@ -15,6 +15,7 @@ module Synthesizer
 
       uni_num_mod = ModulationValue.balance_generator(note_perform, framerate, osc.uni_num, amp.uni_num, center: 1.0)
       uni_detune_mod = ModulationValue.balance_generator(note_perform, framerate, osc.uni_detune, amp.uni_detune)
+      uni_stereo_mod = ModulationValue.balance_generator(note_perform, framerate, osc.uni_stereo, amp.uni_stereo)
       unison = Unison.new(note_perform, osc.source, osc.phase)
 
       # Filter
@@ -32,8 +33,9 @@ module Synthesizer
 
         uni_num = uni_num_mod[]
         uni_detune = uni_detune_mod[]
+        uni_stereo = uni_stereo_mod[]
 
-        buf = unison.next(uni_num, uni_detune, volume, pan, tune_semis, tune_cents)
+        buf = unison.next(uni_num, uni_detune, uni_stereo, volume, pan, tune_semis, tune_cents)
 
         # Filter
         if filter_mod

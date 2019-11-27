@@ -21,7 +21,7 @@ module Synthesizer
         Enumerator.new do |yld|
           delta = @rate / framerate
 
-          pos = ShapePos.new(phase: @phase)
+          pos = ShapePos.new(init_phase: @phase)
 
           # delay
           rate = @delay * framerate
@@ -34,12 +34,12 @@ module Synthesizer
           rate.to_i.times {|i|
             x = i.to_f / rate
             y = @attack_curve[x]
-            yld << @shape[pos.next(delta)] * y
+            yld << @shape[pos.next(delta, 0.0, 0.0)] * y
           }
 
           # sustain
           loop {
-            val = @shape[pos.next(delta)]
+            val = @shape[pos.next(delta, 0.0, 0.0)]
             yld << val
           }
         end.each(&block)

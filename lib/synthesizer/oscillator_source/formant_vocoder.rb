@@ -30,15 +30,15 @@ module Synthesizer
         @pronunciation = ModulationValue.create(pronunciation)
       end
 
-      def next(context, delta, l_gain, r_gain)
+      def next(context, delta, sym, sync, l_gain, r_gain)
         channels = context.channels
         window_size = context.window_size
         samplerate = context.samplerate
         tmpbufs = context.tmpbufs
         pronunciation_mod = context.pronunciation_mod
+        pulse_context = context.pulse_context
 
-        @pulse_context ||= @pulse.generate_context(context.soundinfo, context.note_perform, context.phase)
-        pulse = @pulse.next(@pulse_context, delta, 0.5, 0.5).streams[0]
+        pulse = Pulse.instance.next(pulse_context, delta, sym, sync, 0.5, 0.5).streams[0]
 
         r_index = pronunciation_mod[]
         index = r_index.to_i
@@ -82,24 +82,21 @@ module Synthesizer
         Vdsp::DoubleArray.create(y)
       end
 
-      def generate_context(soundinfo, note_perform, phase)
-        pronunciation_mod = ModulationValue.balance_generator(note_perform, soundinfo.framerate, @pronunciation)
-        tmpbufs = Array.new(5) {|i| Vdsp::DoubleArray.new(soundinfo.window_size+2)}
-
-        FvContext.new(soundinfo, note_perform, phase, tmpbufs, pronunciation_mod)
+      def generate_context(soundinfo, note_perform, init_phase)
+        Context.new(soundinfo, note_perform, init_phase, @pronunciation)
       end
 
-      FvContext = Struct.new("FvContext", :soundinfo, :note_perform, :phase, :tmpbufs, :pronunciation_mod) do
-        def window_size
-          soundinfo.window_size
-        end
+      class Context < Base::Context
+        attr_reader :pronunciation_mod
+        attr_reader :tmpbufs
+        attr_reader :pulse_context
 
-        def channels
-          soundinfo.channels
-        end
+        def initialize(soundinfo, note_perform, init_phase, pronunciation)
+          super(soundinfo, note_perform, init_phase)
 
-        def samplerate
-          soundinfo.samplerate
+          @pronunciation_mod = ModulationValue.balance_generator(note_perform, soundinfo.framerate, @pronunciation)
+          @tmpbufs = Array.new(5) {|i| Vdsp::DoubleArray.new(soundinfo.window_size+2)}
+          @pulse_context = Pulse.instance.generate_context(soundinfo, note_perform, init_phase)
         end
       end
     end

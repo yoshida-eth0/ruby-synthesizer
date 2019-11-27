@@ -13,7 +13,7 @@ module Synthesizer
       }
     end
 
-    def next(uni_num, uni_detune, uni_stereo, volume, pan, tune_semis, tune_cents)
+    def next(uni_num, uni_detune, uni_stereo, volume, pan, tune_semis, tune_cents, sym, sync)
       if uni_num<1.0
         uni_num = 1.0
       elsif UNI_NUM_MAX<uni_num
@@ -28,7 +28,7 @@ module Synthesizer
         hz = @note_perform.note.hz(semis: tune_semis, cents: tune_cents)
         delta = hz / @samplerate
 
-        @source.next(context, delta, l_gain * volume, r_gain * volume)
+        @source.next(context, delta, sym, sync, l_gain * volume, r_gain * volume)
       else
         uni_num.ceil.times.map {|i|
           context = @source_contexts[i]
@@ -49,7 +49,7 @@ module Synthesizer
           hz = @note_perform.note.hz(semis: tune_semis, cents: tune_cents + detune_cents)
           delta = hz / @samplerate
 
-          @source.next(context, delta, l_gain * volume * uni_volume / uni_num, r_gain * volume * uni_volume / uni_num)
+          @source.next(context, delta, sym, sync, l_gain * volume * uni_volume / uni_num, r_gain * volume * uni_volume / uni_num)
         }.inject(:+)
       end
     end

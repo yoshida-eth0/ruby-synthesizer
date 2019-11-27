@@ -13,11 +13,19 @@ module Synthesizer
         result
       end
 
-      def generate_context(soundinfo, note_perform, phase)
-        PulseContext.new(soundinfo.window_size, soundinfo.channels, phase, ShapePos.new(phase: phase), -1.0)
+      def generate_context(soundinfo, note_perform, init_phase)
+        Context.new(soundinfo, note_perform, init_phase)
       end
 
-      PulseContext = Struct.new("PulseContext", :window_size, :channels, :phase, :pos, :prev)
+      class Context < Base::Context
+        attr_accessor :prev
+
+        def initialize(soundinfo, note_perform, init_phase)
+          super(soundinfo, note_perform, init_phase)
+
+          @prev = -1.0
+        end
+      end
     end
   end
 end

@@ -20,7 +20,7 @@ module Synthesizer
     # @param tune_cents [Integer] oscillator pitch cent
     # @param sym [nil] TODO not implemented
     # @param phase [Float] oscillator waveform shape start phase percent (0.0~1.0,nil) nil=random
-    # @param sync [Integer] TODO not implemented
+    # @param sync [Integer] oscillator sync pitch 1.0=semitone 12.0=octave (0.0~48.0)
     # @param uni_num [Float] oscillator voicing number (1.0~16.0)
     # @param uni_detune [Float] oscillator voicing detune percent. 0.01=1cent 1.0=semitone (0.0~1.0)
     # @param uni_stereo [Float] oscillator voicing spread pan. -1.0=full inv 0.0=mono 1.0=full (-1.0~1.0)

@@ -19,9 +19,7 @@ module Synthesizer
 
       def generator(note_perform, framerate, &block)
         Enumerator.new do |yld|
-          delta = @rate / framerate
-
-          pos = ShapePos.new(init_phase: @phase)
+          pos = ShapePos.new(framerate, @phase)
 
           # delay
           rate = @delay * framerate
@@ -34,12 +32,12 @@ module Synthesizer
           rate.to_i.times {|i|
             x = i.to_f / rate
             y = @attack_curve[x]
-            yld << @shape[pos.next(delta, 0.0, 0.0)] * y
+            yld << @shape[pos.next(@rate, 0.0, 0.0)] * y
           }
 
           # sustain
           loop {
-            val = @shape[pos.next(delta, 0.0, 0.0)]
+            val = @shape[pos.next(@rate, 0.0, 0.0)]
             yld << val
           }
         end.each(&block)

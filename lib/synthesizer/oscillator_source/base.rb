@@ -4,13 +4,13 @@ module Synthesizer
       def initialize
       end
 
-      def next(context, delta, sym, sync, l_gain, r_gain)
+      def next(context, hz, sym, sync, l_gain, r_gain)
         channels = context.channels
         window_size = context.window_size
         pos = context.pos
 
         dst = window_size.times.map {|i|
-          sample(context, pos.next(delta, sym, sync))
+          sample(context, pos.next(hz, sym, sync))
         }
         dst = Vdsp::DoubleArray.create(dst)
 
@@ -40,7 +40,7 @@ module Synthesizer
           @soundinfo = soundinfo
           @note_perform = note_perform
           @init_phase = init_phase
-          @pos = ShapePos.new(init_phase: init_phase)
+          @pos = ShapePos.new(@soundinfo.samplerate, init_phase)
         end
 
         def window_size

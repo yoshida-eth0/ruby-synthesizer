@@ -4,7 +4,6 @@ module Synthesizer
 
     def initialize(note_perform, source, phase)
       synth = note_perform.synth
-      @samplerate = synth.soundinfo.samplerate
 
       @note_perform = note_perform
       @source = source
@@ -24,11 +23,9 @@ module Synthesizer
         context = @source_contexts[0]
 
         l_gain, r_gain = Utils.panning(pan)
-
         hz = @note_perform.note.hz(semis: tune_semis, cents: tune_cents)
-        delta = hz / @samplerate
 
-        @source.next(context, delta, sym, sync, l_gain * volume, r_gain * volume)
+        @source.next(context, hz, sym, sync, l_gain * volume, r_gain * volume)
       else
         uni_num.ceil.times.map {|i|
           context = @source_contexts[i]
@@ -45,11 +42,9 @@ module Synthesizer
           diff_pan = uni_stereo * diff
 
           l_gain, r_gain = Utils.panning(pan + diff_pan)
-
           hz = @note_perform.note.hz(semis: tune_semis, cents: tune_cents + detune_cents)
-          delta = hz / @samplerate
 
-          @source.next(context, delta, sym, sync, l_gain * volume * uni_volume / uni_num, r_gain * volume * uni_volume / uni_num)
+          @source.next(context, hz, sym, sync, l_gain * volume * uni_volume / uni_num, r_gain * volume * uni_volume / uni_num)
         }.inject(:+)
       end
     end

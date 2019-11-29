@@ -40,13 +40,22 @@ module Synthesizer
 
         pulse = Pulse.instance.next(pulse_context, hz, sym, sync, 0.5, 0.5).streams[0]
 
+        notediff = Math.log2(hz / 440.0) * 12 + 69 - 36
+        if notediff<0.0
+          notediff = 0.0
+        end
+        notediff = Math.sqrt(notediff)
+        vowels = @vowels.map {|vowel|
+          vowel.map{|f| f * (ShapePos::SEMITONE_RATIO ** notediff)}
+        }
+
         r_index = pronunciation_mod[]
         index = r_index.to_i
 
         dst = 5.times.map {|i|
         #dst = (1...5).each.map {|i|
           tmpbuf = tmpbufs[i]
-          freq = @vowels[index % @vowels_len][i]+(@vowels[(index+1) % @vowels_len][i]-@vowels[index % @vowels_len][i])*(r_index-index)
+          freq = vowels[index % @vowels_len][i]+(vowels[(index+1) % @vowels_len][i]-vowels[index % @vowels_len][i])*(r_index-index)
           w = Math::PI * 2 * freq
           resfil(pulse, tmpbufs[i], @@gain[i], w, 1.0/samplerate, window_size)
         }.inject(:+)

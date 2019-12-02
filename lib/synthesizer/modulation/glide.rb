@@ -2,9 +2,9 @@ module Synthesizer
   module Modulation
     class Glide
 
-      # @param time [Float] glide time sec (0.0~)
+      # @param time [AudioStream::Rate] glide time sec (0.0~)
       def initialize(time:)
-        @time = time.to_f
+        @time = time
 
         @base = 0.0
         @current = 0.0
@@ -26,15 +26,16 @@ module Synthesizer
         @diff = target - @current
       end
 
-      def generator(note_perform, samplerate)
-        rate = @time * samplerate
+      def generator(note_perform)
+        soundinfo = note_perform.synth.soundinfo
+        rate = @time.frame(soundinfo)
 
         -> {
           ret = nil
 
           if !note_perform.released?
             # Note On
-            if 0<@time && @target!=@current
+            if 0<rate && @target!=@current
               # Gliding
               x = @diff / rate
               if x.abs<(@target-@current).abs
@@ -60,8 +61,8 @@ module Synthesizer
         }
       end
 
-      def balance_generator(note_perform, samplerate, depth)
-        gen = generator(note_perform, samplerate)
+      def balance_generator(note_perform, depth)
+        gen = generator(note_perform)
 
         -> {
           gen[] * depth

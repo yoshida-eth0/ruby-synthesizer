@@ -3,12 +3,12 @@ module Synthesizer
     class Lfo
 
       # @param shape [Synthesizer::Shape]
-      # @param delay [Float] delay sec (0.0~)
-      # @param attack [Float] attack sec (0.0~)
+      # @param delay [AudioStream::Rate] delay sec (0.0~)
+      # @param attack [AudioStream::Rate] attack sec (0.0~)
       # @param attack_curve [Synthesizer::Curve]
       # @param phase [Float] phase percent (0.0~1.0)
-      # @param rate [Float] wave freq (0.0~)
-      def initialize(shape: Shape::Sine, delay: 0.0, attack: 0.0, attack_curve: Curve::Straight, phase: 0.0, rate: 3.5)
+      # @param rate [AudioStream::Rate] wave freq (0.0~)
+      def initialize(shape: Shape::Sine, delay: AudioStream::Rate.sec(0.0), attack: AudioStream::Rate.sec(0.0), attack_curve: Curve::Straight, phase: 0.0, rate: AudioStream::Rate.freq(3.5))
         @shape = shape
         @delay = delay
         @attack = attack
@@ -17,35 +17,37 @@ module Synthesizer
         @rate = rate
       end
 
-      def generator(note_perform, framerate, &block)
+      def generator(note_perform, &block)
+        soundinfo = note_perform.synth.soundinfo
+        hz = @rate.freq(soundinfo)
+
         Enumerator.new do |yld|
-          pos = ShapePos.new(framerate, @phase)
+          pos = ShapePos.new(soundinfo.samplerate, @phase)
 
           # delay
-          rate = @delay * framerate
-          rate.to_i.times {|i|
+          @delay.frame(soundinfo).to_i.times {|i|
             yld << 0.0
           }
 
           # attack
-          rate = @attack * framerate
-          rate.to_i.times {|i|
-            x = i.to_f / rate
+          attack_len = @attack.frame(soundinfo).to_i
+          attack_len.times {|i|
+            x = i.to_f / attack_len
             y = @attack_curve[x]
-            yld << @shape[pos.next(@rate, 0.0, 0.0)] * y
+            yld << @shape[pos.next(hz, 0.0, 0.0)] * y
           }
 
           # sustain
           loop {
-            val = @shape[pos.next(@rate, 0.0, 0.0)]
+            val = @shape[pos.next(hz, 0.0, 0.0)]
             yld << val
           }
         end.each(&block)
       end
 
-      def amp_generator(note_perform, framerate, depth, &block)
+      def amp_generator(note_perform, depth, &block)
         bottom = 1.0 - depth
-        gen = generator(note_perform, framerate)
+        gen = generator(note_perform)
 
         -> {
           val = (gen.next + 1) / 2
@@ -53,8 +55,8 @@ module Synthesizer
         }
       end
 
-      def balance_generator(note_perform, framerate, depth, &block)
-        gen = generator(note_perform, framerate)
+      def balance_generator(note_perform, depth, &block)
+        gen = generator(note_perform)
 
         -> {
           gen.next * depth

@@ -12,9 +12,11 @@ module Synthesizer
     attr_accessor :pitch_bend
 
     # @param oscillators [Synthesizer::Oscillator] oscillator
+    # @param filter [Synthesizer::Filter] filter
     # @param amplifier [Synthesizer::Amplifier] amplifier
+    # @param glide [AudioStream::Rate] glide time sec (0.0~)
     # @param soundinfo [AudioStream::SoundInfo]
-    def initialize(oscillators:, filter: nil, amplifier:, glide: 0.1, soundinfo:)
+    def initialize(oscillators:, filter: nil, amplifier:, glide: AudioStream::Rate.sec(0.1), soundinfo:)
       @oscillators = [oscillators].flatten.compact
       @filter = filter
       @amplifier = amplifier

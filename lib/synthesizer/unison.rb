@@ -25,7 +25,7 @@ module Synthesizer
         l_gain, r_gain = Utils.panning(pan)
         hz = @note_perform.note.hz(semis: tune_semis, cents: tune_cents)
 
-        @source.next(context, hz, sym, sync, l_gain * volume, r_gain * volume)
+        @source.next(context, AudioStream::Rate.freq(hz), sym, sync, l_gain * volume, r_gain * volume)
       else
         uni_num.ceil.times.map {|i|
           context = @source_contexts[i]
@@ -44,7 +44,7 @@ module Synthesizer
           l_gain, r_gain = Utils.panning(pan + diff_pan)
           hz = @note_perform.note.hz(semis: tune_semis, cents: tune_cents + detune_cents)
 
-          @source.next(context, hz, sym, sync, l_gain * volume * uni_volume / uni_num, r_gain * volume * uni_volume / uni_num)
+          @source.next(context, AudioStream::Rate.freq(hz), sym, sync, l_gain * volume * uni_volume / uni_num, r_gain * volume * uni_volume / uni_num)
         }.inject(:+)
       end
     end

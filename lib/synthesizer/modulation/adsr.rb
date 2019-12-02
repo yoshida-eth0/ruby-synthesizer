@@ -2,15 +2,15 @@ module Synthesizer
   module Modulation
     class Adsr
 
-      # @param attack [Float] attack sec (0.0~)
+      # @param attack [AudioStream::Rate] attack sec (0.0~)
       # @param attack_curve [Synthesizer::Curve]
-      # @param hold [Float] hold sec (0.0~)
-      # @param decay [Float] decay sec (0.0~)
+      # @param hold [AudioStream::Rate] hold sec (0.0~)
+      # @param decay [AudioStream::Rate] decay sec (0.0~)
       # @param sustain_curve [Synthesizer::Curve]
       # @param sustain [Float] sustain level (0.0~1.0)
-      # @param release [Float] release sec (0.0~)
+      # @param release [AudioStream::Rate] release sec (0.0~)
       # @param release_curve [Synthesizer::Curve]
-      def initialize(attack:, attack_curve: Curve::EaseOut, hold: 0.0, decay:, sustain_curve: Curve::EaseOut, sustain:, release:, release_curve: Curve::EaseOut)
+      def initialize(attack:, attack_curve: Curve::EaseOut, hold: AudioStream::Rate.sec(0.0), decay:, sustain_curve: Curve::EaseOut, sustain:, release:, release_curve: Curve::EaseOut)
         @attack = attack
         @attack_curve = attack_curve
         @hold = hold
@@ -21,27 +21,26 @@ module Synthesizer
         @release_curve = release_curve
       end
 
-      def note_on_envelope(framerate, sustain: false, &block)
+      def note_on_envelope(soundinfo, sustain: false, &block)
         Enumerator.new do |yld|
           # attack
-          rate = @attack * framerate
-          rate.to_i.times {|i|
-            x = i.to_f / rate
+          attack_len = @attack.frame(soundinfo).to_i
+          attack_len.times {|i|
+            x = i.to_f / attack_len
             y = @attack_curve[x]
             yld << y
           }
 
           # hold
-          rate = @hold * framerate
-          rate.to_i.times {|i|
+          @hold.frame(soundinfo).to_i.times {|i|
             yld << 1.0
           }
 
           # decay
-          rate = @decay * framerate
-          rate.to_i.times {|i|
-            x = i.to_f / rate
-            y = 1.0 - @sustain_curve[x]  * (1.0 - @sustain)
+          decay_len = @decay.frame(soundinfo).to_i
+          decay_len.times {|i|
+            x = i.to_f / decay_len
+            y = 1.0 - @sustain_curve[x] * (1.0 - @sustain)
             yld << y
           }
 
@@ -54,12 +53,12 @@ module Synthesizer
         end.each(&block)
       end
 
-      def note_off_envelope(framerate, sustain: false, &block)
+      def note_off_envelope(soundinfo, sustain: false, &block)
         Enumerator.new do |yld|
           # release
-          rate = @release * framerate
-          rate.to_i.times {|i|
-            x = i.to_f / rate
+          release_len = @release.frame(soundinfo).to_i
+          release_len.times {|i|
+            x = i.to_f / release_len
             y = 1.0 - @release_curve[x]
             yld << y
           }
@@ -73,9 +72,11 @@ module Synthesizer
         end.each(&block)
       end
 
-      def generator(note_perform, framerate, release_sustain:)
-        note_on = note_on_envelope(framerate, sustain: true)
-        note_off = note_off_envelope(framerate, sustain: release_sustain)
+      def generator(note_perform, release_sustain:)
+        soundinfo = note_perform.synth.soundinfo
+
+        note_on = note_on_envelope(soundinfo, sustain: true)
+        note_off = note_off_envelope(soundinfo, sustain: release_sustain)
         last = 0.0
 
         -> {
@@ -88,26 +89,26 @@ module Synthesizer
       end
 
 
-      def amp_generator(note_perform, framerate, depth, &block)
+      def amp_generator(note_perform, depth, &block)
         bottom = 1.0 - depth
-        gen = generator(note_perform, framerate, release_sustain: 0.0<bottom)
+        gen = generator(note_perform, release_sustain: 0.0<bottom)
 
         -> {
           gen[] * depth + bottom
         }
       end
 
-      def balance_generator(note_perform, framerate, depth, &block)
-        gen = generator(note_perform, framerate, release_sustain: true)
+      def balance_generator(note_perform, depth, &block)
+        gen = generator(note_perform, release_sustain: true)
 
         -> {
           gen[] * depth
         }
       end
 
-      def plot_data(framerate: 44100)
-        note_on = note_on_envelope(framerate, sustain: false)
-        note_off = note_off_envelope(framerate, sustain: false)
+      def plot_data(soundinfo)
+        note_on = note_on_envelope(soundinfo, sustain: false)
+        note_off = note_off_envelope(soundinfo, sustain: false)
         last = 0.0
 
         xs = []
@@ -127,8 +128,8 @@ module Synthesizer
         {x: xs, y: ys}
       end
 
-      def plot(framerate: 44100)
-        data = plot_data(framerate: framerate)
+      def plot(soundinfo)
+        data = plot_data(soundinfo)
         Plotly::Plot.new(data: [data])
       end
     end

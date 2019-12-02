@@ -4,10 +4,12 @@ module Synthesizer
       def initialize
       end
 
-      def next(context, hz, sym, sync, l_gain, r_gain)
+      def next(context, rate, sym, sync, l_gain, r_gain)
+        soundinfo = context.soundinfo
         channels = context.channels
         window_size = context.window_size
         pos = context.pos
+        hz = rate.freq(soundinfo)
 
         dst = window_size.times.map {|i|
           sample(context, pos.next(hz, sym, sync))

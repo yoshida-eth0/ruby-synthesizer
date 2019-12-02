@@ -5,9 +5,9 @@ module Synthesizer
         @filters = filters
       end
 
-      def generator(note_perform, framerate)
+      def generator(note_perform)
         filter_mods = @filters.map {|filter|
-          filter.generator(note_perform, framerate)
+          filter.generator(note_perform)
         }
 
         -> {

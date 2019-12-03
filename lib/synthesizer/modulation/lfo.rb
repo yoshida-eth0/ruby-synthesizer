@@ -22,7 +22,7 @@ module Synthesizer
         hz = @rate.freq(soundinfo)
 
         Enumerator.new do |yld|
-          pos = ShapePos.new(soundinfo.samplerate, @phase)
+          pos = ShapePos.new(soundinfo.framerate, @phase)
 
           # delay
           @delay.frame(soundinfo).to_i.times {|i|

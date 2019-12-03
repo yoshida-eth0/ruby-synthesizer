@@ -35,7 +35,7 @@ module Synthesizer
       end
     end
 
-    def self.amp_generator(note_perform, *modvals)
+    def self.amp_generator(note_perform, samplecount, *modvals)
       modvals = modvals.flatten.compact
 
       # value
@@ -45,7 +45,7 @@ module Synthesizer
       mods = []
       modvals.each {|modval|
         modval.mods.each {|mod, depth|
-          mods << mod.amp_generator(note_perform, depth)
+          mods << mod.amp_generator(note_perform, samplecount, depth)
         }
       }
 
@@ -55,7 +55,7 @@ module Synthesizer
       }
     end
 
-    def self.balance_generator(note_perform, *modvals, center: 0)
+    def self.balance_generator(note_perform, samplecount, *modvals, center: 0)
       modvals = modvals.flatten.compact
 
       # value
@@ -66,7 +66,7 @@ module Synthesizer
       mods = []
       modvals.each {|modval|
         modval.mods.each {|mod, depth|
-          mods << mod.balance_generator(note_perform, depth)
+          mods << mod.balance_generator(note_perform, samplecount, depth)
         }
       }
 

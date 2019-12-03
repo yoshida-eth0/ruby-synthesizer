@@ -25,9 +25,9 @@ module Synthesizer
         l_gain, r_gain = Utils.panning(pan)
         hz = @note_perform.note.hz(semis: tune_semis, cents: tune_cents)
 
-        @source.next(context, AudioStream::Rate.freq(hz), sym, sync, l_gain * volume, r_gain * volume)
+        buffer = @source.next(context, AudioStream::Rate.freq(hz), sym, sync, l_gain, r_gain)
       else
-        uni_num.ceil.times.map {|i|
+        buffer = uni_num.ceil.times.map {|i|
           context = @source_contexts[i]
 
           uni_volume = 1.0
@@ -44,9 +44,13 @@ module Synthesizer
           l_gain, r_gain = Utils.panning(pan + diff_pan)
           hz = @note_perform.note.hz(semis: tune_semis, cents: tune_cents + detune_cents)
 
-          @source.next(context, AudioStream::Rate.freq(hz), sym, sync, l_gain * volume * uni_volume / uni_num, r_gain * volume * uni_volume / uni_num)
+          @source.next(context, AudioStream::Rate.freq(hz), sym, sync, l_gain * uni_volume / uni_num, r_gain * uni_volume / uni_num)
         }.inject(:+)
       end
+
+      AudioStream::Buffer.new(*buffer.streams.map {|stream|
+        stream * volume
+      })
     end
   end
 end

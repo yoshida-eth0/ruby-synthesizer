@@ -21,10 +21,10 @@ module Synthesizer
         @release_curve = release_curve
       end
 
-      def note_on_envelope(soundinfo, sustain: false, &block)
+      def note_on_envelope(soundinfo, samplecount, sustain: false, &block)
         Enumerator.new do |yld|
           # attack
-          attack_len = @attack.frame(soundinfo).to_i
+          attack_len = (@attack.sample(soundinfo) / samplecount).to_i
           attack_len.times {|i|
             x = i.to_f / attack_len
             y = @attack_curve[x]
@@ -32,12 +32,12 @@ module Synthesizer
           }
 
           # hold
-          @hold.frame(soundinfo).to_i.times {|i|
+          (@hold.sample(soundinfo) / samplecount).to_i.times {|i|
             yld << 1.0
           }
 
           # decay
-          decay_len = @decay.frame(soundinfo).to_i
+          decay_len = (@decay.sample(soundinfo) / samplecount).to_i
           decay_len.times {|i|
             x = i.to_f / decay_len
             y = 1.0 - @sustain_curve[x] * (1.0 - @sustain)
@@ -53,10 +53,10 @@ module Synthesizer
         end.each(&block)
       end
 
-      def note_off_envelope(soundinfo, sustain: false, &block)
+      def note_off_envelope(soundinfo, samplecount, sustain: false, &block)
         Enumerator.new do |yld|
           # release
-          release_len = @release.frame(soundinfo).to_i
+          release_len = (@release.sample(soundinfo) / samplecount).to_i
           release_len.times {|i|
             x = i.to_f / release_len
             y = 1.0 - @release_curve[x]
@@ -72,11 +72,11 @@ module Synthesizer
         end.each(&block)
       end
 
-      def generator(note_perform, release_sustain:)
+      def generator(note_perform, samplecount, release_sustain:)
         soundinfo = note_perform.synth.soundinfo
 
-        note_on = note_on_envelope(soundinfo, sustain: true)
-        note_off = note_off_envelope(soundinfo, sustain: release_sustain)
+        note_on = note_on_envelope(soundinfo, samplecount, sustain: true)
+        note_off = note_off_envelope(soundinfo, samplecount, sustain: release_sustain)
         last = 0.0
 
         -> {
@@ -89,17 +89,17 @@ module Synthesizer
       end
 
 
-      def amp_generator(note_perform, depth, &block)
+      def amp_generator(note_perform, samplecount, depth, &block)
         bottom = 1.0 - depth
-        gen = generator(note_perform, release_sustain: 0.0<bottom)
+        gen = generator(note_perform, samplecount, release_sustain: 0.0<bottom)
 
         -> {
           gen[] * depth + bottom
         }
       end
 
-      def balance_generator(note_perform, depth, &block)
-        gen = generator(note_perform, release_sustain: true)
+      def balance_generator(note_perform, samplecount, depth, &block)
+        gen = generator(note_perform, samplecount, release_sustain: true)
 
         -> {
           gen[] * depth

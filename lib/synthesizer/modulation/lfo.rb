@@ -17,20 +17,20 @@ module Synthesizer
         @rate = rate
       end
 
-      def generator(note_perform, &block)
+      def generator(note_perform, samplecount, &block)
         soundinfo = note_perform.synth.soundinfo
         hz = @rate.freq(soundinfo)
 
         Enumerator.new do |yld|
-          pos = ShapePos.new(soundinfo.framerate, @phase)
+          pos = ShapePos.new(soundinfo.samplerate / samplecount, @phase)
 
           # delay
-          @delay.frame(soundinfo).to_i.times {|i|
+          (@delay.sample(soundinfo) / samplecount).to_i.times {|i|
             yld << 0.0
           }
 
           # attack
-          attack_len = @attack.frame(soundinfo).to_i
+          attack_len = (@attack.sample(soundinfo) / samplecount).to_i
           attack_len.times {|i|
             x = i.to_f / attack_len
             y = @attack_curve[x]
@@ -45,9 +45,9 @@ module Synthesizer
         end.each(&block)
       end
 
-      def amp_generator(note_perform, depth, &block)
+      def amp_generator(note_perform, samplecount, depth, &block)
         bottom = 1.0 - depth
-        gen = generator(note_perform)
+        gen = generator(note_perform, samplecount)
 
         -> {
           val = (gen.next + 1) / 2
@@ -55,8 +55,8 @@ module Synthesizer
         }
       end
 
-      def balance_generator(note_perform, depth, &block)
-        gen = generator(note_perform)
+      def balance_generator(note_perform, samplecount, depth, &block)
+        gen = generator(note_perform, samplecount)
 
         -> {
           gen.next * depth

@@ -9,7 +9,7 @@ module Synthesizer
 
       def generator(note_perform, samplecount)
         soundinfo = note_perform.synth.soundinfo
-        filter = AudioStream::Fx::LowShelfFilter.new(soundinfo)
+        filter = AudioStream::Fx::PeakingFilter.new(soundinfo)
 
         freq_mod = ModulationValue.balance_generator(note_perform, samplecount, @freq)
         bandwidth_mod = ModulationValue.balance_generator(note_perform, samplecount, @bandwidth)

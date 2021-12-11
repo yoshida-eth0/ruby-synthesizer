@@ -8,6 +8,7 @@
 /tmp/
 samples/output_*
 .DS_Store
+Gemfile.lock
 .ipynb_checkpoints
 
 # rspec failure tracking

@@ -3,18 +3,18 @@ module Synthesizer
     class Lfo
 
       # @param shape [Synthesizer::Shape]
-      # @param delay [AudioStream::Rate] delay sec (0.0~)
-      # @param attack [AudioStream::Rate] attack sec (0.0~)
+      # @param delay [AudioStream::Rate | Float] delay sec (0.0~)
+      # @param attack [AudioStream::Rate | Float] attack sec (0.0~)
       # @param attack_curve [Synthesizer::Curve]
       # @param phase [Float] phase percent (0.0~1.0)
-      # @param rate [AudioStream::Rate] wave freq (0.0~)
-      def initialize(shape: Shape::Sine, delay: AudioStream::Rate.sec(0.0), attack: AudioStream::Rate.sec(0.0), attack_curve: Curve::Straight, phase: 0.0, rate: AudioStream::Rate.freq(3.5))
+      # @param rate [AudioStream::Rate | Float] wave freq (0.0~)
+      def initialize(shape: Shape::Sine, delay: 0.0, attack: 0.0, attack_curve: Curve::Straight, phase: 0.0, rate: 0.3)
         @shape = shape
-        @delay = delay
-        @attack = attack
+        @delay = AudioStream::Rate.sec(delay)
+        @attack = AudioStream::Rate.sec(attack)
         @attack_curve = attack_curve
-        @phase = phase
-        @rate = rate
+        @phase = phase.to_f
+        @rate = AudioStream::Rate.sec(rate)
       end
 
       def generator(note_perform, samplecount, &block)

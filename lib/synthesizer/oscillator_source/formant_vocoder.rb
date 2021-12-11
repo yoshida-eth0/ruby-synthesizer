@@ -21,7 +21,7 @@ module Synthesizer
       end
 
       def vowels=(vowels)
-        vowels = vowels + [vowels[0]]
+        #vowels = vowels + [vowels[0]]
         @vowels = vowels.map {|v| @@f[v]}
         @vowels_len = @vowels.length
       end
@@ -104,7 +104,8 @@ module Synthesizer
         def initialize(soundinfo, note_perform, init_phase, pronunciation)
           super(soundinfo, note_perform, init_phase)
 
-          @pronunciation_mod = ModulationValue.balance_generator(note_perform, @pronunciation)
+          synth = note_perform.synth
+          @pronunciation_mod = ModulationValue.balance_generator(note_perform, synth.soundinfo.window_size.to_f, pronunciation)
           @tmpbufs = Array.new(5) {|i| Vdsp::DoubleArray.new(soundinfo.window_size+2)}
           @pulse_context = Pulse.instance.generate_context(soundinfo, note_perform, init_phase)
         end

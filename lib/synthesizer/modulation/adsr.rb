@@ -2,22 +2,22 @@ module Synthesizer
   module Modulation
     class Adsr
 
-      # @param attack [AudioStream::Rate] attack sec (0.0~)
+      # @param attack [AudioStream::Rate | Float] attack sec (0.0~)
       # @param attack_curve [Synthesizer::Curve]
-      # @param hold [AudioStream::Rate] hold sec (0.0~)
-      # @param decay [AudioStream::Rate] decay sec (0.0~)
+      # @param hold [AudioStream::Rate | Float] hold sec (0.0~)
+      # @param decay [AudioStream::Rate | Float] decay sec (0.0~)
       # @param sustain_curve [Synthesizer::Curve]
       # @param sustain [Float] sustain level (0.0~1.0)
-      # @param release [AudioStream::Rate] release sec (0.0~)
+      # @param release [AudioStream::Rate | Float] release sec (0.0~)
       # @param release_curve [Synthesizer::Curve]
-      def initialize(attack:, attack_curve: Curve::EaseOut, hold: AudioStream::Rate.sec(0.0), decay:, sustain_curve: Curve::EaseOut, sustain:, release:, release_curve: Curve::EaseOut)
-        @attack = attack
+      def initialize(attack:, attack_curve: Curve::EaseOut, hold: 0.0, decay:, sustain_curve: Curve::EaseOut, sustain:, release:, release_curve: Curve::EaseOut)
+        @attack = AudioStream::Rate.sec(attack)
         @attack_curve = attack_curve
-        @hold = hold
-        @decay = decay
+        @hold = AudioStream::Rate.sec(hold)
+        @decay = AudioStream::Rate.sec(decay)
         @sustain_curve = sustain_curve
         @sustain = sustain
-        @release = release
+        @release = AudioStream::Rate.sec(release)
         @release_curve = release_curve
       end
 
@@ -107,8 +107,9 @@ module Synthesizer
       end
 
       def plot_data(soundinfo)
-        note_on = note_on_envelope(soundinfo, sustain: false)
-        note_off = note_off_envelope(soundinfo, sustain: false)
+        samplecount = soundinfo.window_size.to_f
+        note_on = note_on_envelope(soundinfo, samplecount, sustain: false)
+        note_off = note_off_envelope(soundinfo, samplecount, sustain: false)
         last = 0.0
 
         xs = []

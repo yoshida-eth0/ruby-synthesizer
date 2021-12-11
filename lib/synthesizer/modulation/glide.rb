@@ -2,9 +2,9 @@ module Synthesizer
   module Modulation
     class Glide
 
-      # @param time [AudioStream::Rate] glide time sec (0.0~)
+      # @param time [AudioStream::Rate | Float] glide time sec (0.0~)
       def initialize(time:)
-        @time = time
+        @time = AudioStream::Rate.sec(time)
 
         @base = 0.0
         @current = 0.0

@@ -18,11 +18,11 @@ module Synthesizer
     RampUp = ->(phase) { (phase % 1.0) * 2 - 1 }
     RampDown = ->(phase) { (phase % 1.0) * -2 + 1 }
 
-    PositiveRampUp = ->(phase) { phase % 1.0}
-    PositiveRampDown = ->(phase) { (phase % 1.0) * -1 + 1}
+    PositiveRampUp = ->(phase) { phase % 1.0 }
+    PositiveRampDown = ->(phase) { (phase % 1.0) * -1 + 1 }
 
-    ForeverRampUp = ->(phase) { phase}
-    ForeverRampDown = ->(phase) { -phase}
+    ForeverRampUp = ->(phase) { phase }
+    ForeverRampDown = ->(phase) { -phase }
 
     # Complex
     self.constants.tap {|consts|

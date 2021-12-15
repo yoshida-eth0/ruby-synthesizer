@@ -1,32 +1,32 @@
 module Synthesizer
   module Processor
     class Low
-      def generator(osc, note_perform)
-        synth = note_perform.synth
+      def generator(osc, synth, note_perform)
         filter = synth.filter
         amp = synth.amplifier
 
+        soundinfo = synth.soundinfo
         samplecount = synth.soundinfo.window_size.to_f
 
         # Oscillator, Amplifier
-        volume_mod = ModulationValue.amp_generator(note_perform, samplecount, osc.volume, amp.volume)
-        pan_mod = ModulationValue.balance_generator(note_perform, samplecount, osc.pan, amp.pan)
-        tune_semis_mod = ModulationValue.balance_generator(note_perform, samplecount, osc.tune_semis, amp.tune_semis, synth.glide&.to_modval)
-        tune_cents_mod = ModulationValue.balance_generator(note_perform, samplecount, osc.tune_cents, amp.tune_cents)
+        volume_mod = ModulationValue.amp_generator(soundinfo, note_perform, samplecount, osc.volume, amp.volume)
+        pan_mod = ModulationValue.balance_generator(soundinfo, note_perform, samplecount, osc.pan, amp.pan)
+        tune_semis_mod = ModulationValue.balance_generator(soundinfo, note_perform, samplecount, osc.tune_semis, amp.tune_semis, synth.glide&.to_modval)
+        tune_cents_mod = ModulationValue.balance_generator(soundinfo, note_perform, samplecount, osc.tune_cents, amp.tune_cents)
 
-        sym_mod = ModulationValue.balance_generator(note_perform, samplecount, osc.sym)
-        sync_mod = ModulationValue.balance_generator(note_perform, samplecount, osc.sync)
+        sym_mod = ModulationValue.balance_generator(soundinfo, note_perform, samplecount, osc.sym)
+        sync_mod = ModulationValue.balance_generator(soundinfo, note_perform, samplecount, osc.sync)
 
-        uni_num_mod = ModulationValue.balance_generator(note_perform, samplecount, osc.uni_num, amp.uni_num, center: 1.0)
-        uni_detune_mod = ModulationValue.balance_generator(note_perform, samplecount, osc.uni_detune, amp.uni_detune)
-        uni_stereo_mod = ModulationValue.balance_generator(note_perform, samplecount, osc.uni_stereo, amp.uni_stereo)
+        uni_num_mod = ModulationValue.balance_generator(soundinfo, note_perform, samplecount, osc.uni_num, amp.uni_num, center: 1.0)
+        uni_detune_mod = ModulationValue.balance_generator(soundinfo, note_perform, samplecount, osc.uni_detune, amp.uni_detune)
+        uni_stereo_mod = ModulationValue.balance_generator(soundinfo, note_perform, samplecount, osc.uni_stereo, amp.uni_stereo)
 
-        unison = Unison.new(note_perform, osc.source, osc.phase)
+        unison = Unison.new(soundinfo, note_perform, osc.source, osc.phase)
 
         # Filter
         filter_mod = nil
         if filter
-          filter_mod = filter.generator(note_perform, samplecount)
+          filter_mod = filter.generator(soundinfo, note_perform, samplecount)
         end
 
         -> {

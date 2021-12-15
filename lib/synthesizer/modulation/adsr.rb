@@ -72,9 +72,7 @@ module Synthesizer
         end.each(&block)
       end
 
-      def generator(note_perform, samplecount, release_sustain:)
-        soundinfo = note_perform.synth.soundinfo
-
+      def generator(soundinfo, note_perform, samplecount, release_sustain:)
         note_on = note_on_envelope(soundinfo, samplecount, sustain: true)
         note_off = note_off_envelope(soundinfo, samplecount, sustain: release_sustain)
         last = 0.0
@@ -89,17 +87,17 @@ module Synthesizer
       end
 
 
-      def amp_generator(note_perform, samplecount, depth, &block)
+      def amp_generator(soundinfo, note_perform, samplecount, depth, &block)
         bottom = 1.0 - depth
-        gen = generator(note_perform, samplecount, release_sustain: 0.0<bottom)
+        gen = generator(soundinfo, note_perform, samplecount, release_sustain: 0.0<bottom)
 
         -> {
           gen[] * depth + bottom
         }
       end
 
-      def balance_generator(note_perform, samplecount, depth, &block)
-        gen = generator(note_perform, samplecount, release_sustain: true)
+      def balance_generator(soundinfo, note_perform, samplecount, depth, &block)
+        gen = generator(soundinfo, note_perform, samplecount, release_sustain: true)
 
         -> {
           gen[] * depth

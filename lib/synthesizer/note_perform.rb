@@ -1,17 +1,17 @@
+require 'forwardable'
+
 module Synthesizer
   class NotePerform
 
-    attr_reader :synth
     attr_reader :note
     attr_reader :velocity
 
     def initialize(synth, note, velocity)
-      @synth = synth
       @note = note
       @velocity = velocity
 
       @processors = synth.oscillators.map {|osc|
-        synth.processor.generator(osc, self)
+        synth.processor.generator(osc, synth, self)
       }
 
       @note_on = true

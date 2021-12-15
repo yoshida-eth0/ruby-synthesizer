@@ -49,10 +49,7 @@ module Synthesizer
     # @param velocity [Float] volume percent (0.0~1.0)
     def note_on(note, velocity: 1.0)
       # Note Off
-      perform = @performs[note.num]
-      if perform
-        perform.note_off!
-      end
+      note_off(note)
 
       # Note On
       perform = NotePerform.new(self, note, velocity)

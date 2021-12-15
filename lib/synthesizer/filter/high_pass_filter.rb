@@ -6,12 +6,11 @@ module Synthesizer
         @q = ModulationValue.create(q)
       end
 
-      def generator(note_perform, samplecount)
-        soundinfo = note_perform.synth.soundinfo
+      def generator(soundinfo, note_perform, samplecount)
         filter = AudioStream::Fx::HighPassFilter.new(soundinfo)
 
-        freq_mod = ModulationValue.balance_generator(note_perform, samplecount, @freq)
-        q_mod = ModulationValue.balance_generator(note_perform, samplecount, @q)
+        freq_mod = ModulationValue.balance_generator(soundinfo, note_perform, samplecount, @freq)
+        q_mod = ModulationValue.balance_generator(soundinfo, note_perform, samplecount, @q)
 
         -> {
           filter.update_coef(freq: freq_mod[], q: q_mod[])

@@ -17,8 +17,7 @@ module Synthesizer
         @rate = AudioStream::Rate.sec(rate)
       end
 
-      def generator(note_perform, samplecount, &block)
-        soundinfo = note_perform.synth.soundinfo
+      def generator(soundinfo, note_perform, samplecount, &block)
         hz = @rate.freq(soundinfo)
 
         Enumerator.new do |yld|
@@ -45,9 +44,9 @@ module Synthesizer
         end.each(&block)
       end
 
-      def amp_generator(note_perform, samplecount, depth, &block)
+      def amp_generator(soundinfo, note_perform, samplecount, depth, &block)
         bottom = 1.0 - depth
-        gen = generator(note_perform, samplecount)
+        gen = generator(soundinfo, note_perform, samplecount)
 
         -> {
           val = (gen.next + 1) / 2
@@ -55,8 +54,8 @@ module Synthesizer
         }
       end
 
-      def balance_generator(note_perform, samplecount, depth, &block)
-        gen = generator(note_perform, samplecount)
+      def balance_generator(soundinfo, note_perform, samplecount, depth, &block)
+        gen = generator(soundinfo, note_perform, samplecount)
 
         -> {
           gen.next * depth

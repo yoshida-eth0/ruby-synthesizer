@@ -2,13 +2,11 @@ module Synthesizer
   class Unison
     UNI_NUM_MAX = 16
 
-    def initialize(note_perform, source, phase)
-      synth = note_perform.synth
-
+    def initialize(soundinfo, note_perform, source, phase)
       @note_perform = note_perform
       @source = source
       @source_contexts = UNI_NUM_MAX.times.map {|i|
-        source.generate_context(synth.soundinfo, note_perform,  phase.value)
+        source.generate_context(soundinfo, note_perform,  phase.value)
       }
     end
 

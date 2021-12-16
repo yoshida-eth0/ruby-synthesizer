@@ -6,7 +6,7 @@
 /pkg/
 /spec/reports/
 /tmp/
-samples/output_*
+output_*.wav
 .DS_Store
 Gemfile.lock
 .ipynb_checkpoints

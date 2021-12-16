@@ -26,8 +26,7 @@ module Synthesizer
         @diff = target - @current
       end
 
-      def generator(note_perform, samplecount)
-        soundinfo = note_perform.synth.soundinfo
+      def generator(soundinfo, note_perform, samplecount)
         rate = @time.sample(soundinfo) / samplecount
 
         -> {
@@ -61,8 +60,8 @@ module Synthesizer
         }
       end
 
-      def balance_generator(note_perform, samplecount, depth)
-        gen = generator(note_perform, samplecount)
+      def balance_generator(soundinfo, note_perform, samplecount, depth)
+        gen = generator(soundinfo, note_perform, samplecount)
 
         -> {
           gen[] * depth

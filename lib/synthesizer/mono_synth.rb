@@ -18,7 +18,7 @@ module Synthesizer
     # @param glide [AudioStream::Rate] glide time sec (0.0~)
     # @param quality [Synthesizer::Quality] processor quality
     # @param soundinfo [AudioStream::SoundInfo]
-    def initialize(oscillators:, filter: nil, amplifier:, glide: AudioStream::Rate.sec(0.1), quality: Quality::LOW, soundinfo:)
+    def initialize(oscillators:, filter: nil, amplifier: Amplifier::HARD, glide: AudioStream::Rate.sec(0.1), quality: Quality::LOW, soundinfo:)
       @oscillators = [oscillators].flatten.compact
       @filter = filter
       @amplifier = amplifier

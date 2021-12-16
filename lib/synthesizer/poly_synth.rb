@@ -17,7 +17,7 @@ module Synthesizer
     # @param amplifier [Synthesizer::Amplifier] amplifier
     # @param quality [Synthesizer::Quality] processor quality
     # @param soundinfo [AudioStream::SoundInfo]
-    def initialize(oscillators:, filter: nil, amplifier:, quality: Quality::LOW, soundinfo:)
+    def initialize(oscillators:, filter: nil, amplifier: Amplifier::HARD, quality: Quality::LOW, soundinfo:)
       @oscillators = [oscillators].flatten.compact
       @filter = filter
       @amplifier = amplifier
@@ -52,7 +52,7 @@ module Synthesizer
       note_off(note)
 
       # Note On
-      perform = NotePerform.new(self, note, velocity, Freq::DEFAULT)
+      perform = NotePerform.new(self, note, velocity)
       @performs[note.num] = perform
     end
 

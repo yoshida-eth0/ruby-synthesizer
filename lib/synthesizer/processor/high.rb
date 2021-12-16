@@ -5,6 +5,7 @@ module Synthesizer
         filter = synth.filter
         amp = synth.amplifier
 
+        soundinfo = synth.soundinfo
         samplecount = synth.soundinfo.window_size.to_f
 
         # Oscillator, Amplifier
@@ -28,6 +29,11 @@ module Synthesizer
           filter_mod = filter.generator(soundinfo, note_perform, samplecount)
         end
 
+        # Frequency modulator
+        modulators = osc.freq_modulators.map {|modulator|
+          NotePerform.new(modulator, note_perform.note, note_perform.velocity)
+        }
+
         -> {
           # Oscillator, Amplifier
           volume = Vdsp::DoubleArray.create(
@@ -46,7 +52,16 @@ module Synthesizer
           uni_detune = uni_detune_mod[]
           uni_stereo = uni_stereo_mod[]
 
-          buf = unison.next(uni_num, uni_detune, uni_stereo, volume, pan, tune_semis, tune_cents, sym, sync, nil) # TODO
+          # Frequency modulator
+          modulator_buf = modulators.map {|modulator|
+            begin
+              modulator.next
+            rescue StopIteration => e
+              nil
+            end
+          }.concat.inject(&:+)
+
+          buf = unison.next(uni_num, uni_detune, uni_stereo, volume, pan, tune_semis, tune_cents, sym, sync, modulator_buf, osc.carrier_freq)
 
           # Filter
           if filter_mod

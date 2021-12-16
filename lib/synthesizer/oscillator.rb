@@ -12,6 +12,7 @@ module Synthesizer
     attr_reader :uni_num
     attr_reader :uni_detune
     attr_reader :uni_stereo
+    attr_reader :carrier_freq
     attr_reader :freq_modulators
 
     # @param source [Synthesizer::OscillatorSource] oscillator waveform source
@@ -25,8 +26,10 @@ module Synthesizer
     # @param uni_num [ModulationValue | Float] oscillator voicing number (1.0~16.0)
     # @param uni_detune [ModulationValue | Float] oscillator voicing detune percent. 0.01=1cent 1.0=semitone (0.0~1.0)
     # @param uni_stereo [ModulationValue | Float] oscillator voicing spread pan. -1.0=full inv 0.0=mono 1.0=full (-1.0~1.0)
+    # @param fixed_freq [AudioStream::Rate | Float] carrier fixed frequency
+    # @param ratio_freq [Float] carrier ratio frequency
     # @param freq_modulators [FreqModulator] frequency modulator
-    def initialize(source: OscillatorSource::Sine.instance, volume: 1.0, pan: 0.0, tune_semis: 0, tune_cents: 0, sym: 0, phase: nil, sync: 0, uni_num: 1.0, uni_detune: 0.0, uni_stereo: 0.0, freq_modulators: [])
+    def initialize(source: OscillatorSource::Sine.instance, volume: 1.0, pan: 0.0, tune_semis: 0, tune_cents: 0, sym: 0, phase: nil, sync: 0, uni_num: 1.0, uni_detune: 0.0, uni_stereo: 0.0, fixed_freq: nil, ratio_freq: nil, freq_modulators: [])
       @source = source
 
       @volume = ModulationValue.create(volume)
@@ -40,6 +43,14 @@ module Synthesizer
 
       @uni_num = ModulationValue.create(uni_num)
       @uni_detune = ModulationValue.create(uni_detune)
+
+      if fixed_freq
+        @carrier_freq = Freq.fixed(fixed_freq)
+      elsif ratio_freq
+        @carrier_freq = Freq.ratio(ratio_freq)
+      else
+        @carrier_freq = Freq.thru
+      end
 
       @freq_modulators = [freq_modulators].flatten.compact
     end

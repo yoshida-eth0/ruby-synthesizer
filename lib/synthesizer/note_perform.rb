@@ -6,13 +6,12 @@ module Synthesizer
     attr_reader :note
     attr_reader :velocity
 
-    def initialize(synth, note, velocity, carrier_freq)
+    def initialize(synth, note, velocity)
       @note = note
       @velocity = velocity
-      freq ||= Freq.ratio(1.0)
 
       @processors = synth.oscillators.map {|osc|
-        synth.processor.generator(osc, synth, self, carrier_freq)
+        synth.processor.generator(osc, synth, self)
       }
 
       @note_on = true

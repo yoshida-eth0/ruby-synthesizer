@@ -131,6 +131,23 @@ module Synthesizer
         data = plot_data(soundinfo)
         Plotly::Plot.new(data: [data])
       end
+
+
+      SOFT = Adsr.new(
+        attack: 0.05,
+        hold: 0.1,
+        decay: 0.4,
+        sustain: 0.8,
+        release: 0.2
+      )
+
+      HARD = Adsr.new(
+        attack: 0.0,
+        hold: 0.0,
+        decay: 0.0,
+        sustain: 1.0,
+        release: 0.0
+      )
     end
   end
 end

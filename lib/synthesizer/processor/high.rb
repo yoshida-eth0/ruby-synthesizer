@@ -46,7 +46,7 @@ module Synthesizer
           uni_detune = uni_detune_mod[]
           uni_stereo = uni_stereo_mod[]
 
-          buf = unison.next(uni_num, uni_detune, uni_stereo, volume, pan, tune_semis, tune_cents, sym, sync)
+          buf = unison.next(uni_num, uni_detune, uni_stereo, volume, pan, tune_semis, tune_cents, sym, sync, nil) # TODO
 
           # Filter
           if filter_mod

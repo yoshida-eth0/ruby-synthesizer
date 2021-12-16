@@ -52,7 +52,7 @@ module Synthesizer
       note_off(note)
 
       # Note On
-      perform = NotePerform.new(self, note, velocity)
+      perform = NotePerform.new(self, note, velocity, Freq::DEFAULT)
       @performs[note.num] = perform
     end
 

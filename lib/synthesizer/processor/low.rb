@@ -1,12 +1,14 @@
 module Synthesizer
   module Processor
     class Low
-      def generator(osc, synth, note_perform)
+      def generator(osc, synth, note_perform, carrier_freq)
         filter = synth.filter
         amp = synth.amplifier
 
         soundinfo = synth.soundinfo
         samplecount = synth.soundinfo.window_size.to_f
+
+        carrier_freq ||= Freq::DEFAULT
 
         # Oscillator, Amplifier
         volume_mod = ModulationValue.amp_generator(soundinfo, note_perform, samplecount, osc.volume, amp.volume)
@@ -29,6 +31,11 @@ module Synthesizer
           filter_mod = filter.generator(soundinfo, note_perform, samplecount)
         end
 
+        # Frequency modulator
+        modulators = osc.freq_modulators.map {|modulator|
+          NotePerform.new(modulator.synth, note_perform.note, note_perform.velocity, modulator.freq)
+        }
+
         -> {
           # Oscillator, Amplifier
           volume = volume_mod[] * note_perform.velocity
@@ -43,7 +50,15 @@ module Synthesizer
           uni_detune = uni_detune_mod[]
           uni_stereo = uni_stereo_mod[]
 
-          buf = unison.next(uni_num, uni_detune, uni_stereo, volume, pan, tune_semis, tune_cents, sym, sync)
+          modulator_buf = modulators.map {|modulator|
+            begin
+              modulator.next
+            rescue StopIteration => e
+              nil
+            end
+          }.concat.inject(&:+)
+
+          buf = unison.next(uni_num, uni_detune, uni_stereo, volume, pan, tune_semis, tune_cents, sym, sync, modulator_buf, carrier_freq)
 
           # Filter
           if filter_mod

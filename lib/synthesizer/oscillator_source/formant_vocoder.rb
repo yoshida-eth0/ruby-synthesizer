@@ -30,7 +30,7 @@ module Synthesizer
         @pronunciation = ModulationValue.create(pronunciation)
       end
 
-      def next(context, rate, sym, sync, l_gain, r_gain)
+      def next(context, rate, sym, sync, l_gain, r_gain, phase_offset)
         soundinfo = context.soundinfo
         channels = context.channels
         window_size = context.window_size
@@ -39,7 +39,7 @@ module Synthesizer
         pronunciation_mod = context.pronunciation_mod
         pulse_context = context.pulse_context
 
-        pulse = Pulse.instance.next(pulse_context, rate, sym, sync, 0.5, 0.5).streams[0]
+        pulse = Pulse.instance.next(pulse_context, rate, sym, sync, 0.5, 0.5, phase_offset).streams[0]
 
         notediff = Math.log2(rate.freq(soundinfo) / 440.0) * 12 + 69 - 36
         if notediff<0.0

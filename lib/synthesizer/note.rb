@@ -32,7 +32,7 @@ module Synthesizer
       @num = num.to_i
     end
 
-    def hz(semis: 0, cents: 0)
+    def freq(semis: 0, cents: 0)
       6.875 * (2 ** ((@num + semis + (cents / 100.0) + 3) / 12.0))
     end
 

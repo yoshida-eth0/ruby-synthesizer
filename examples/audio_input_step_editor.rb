@@ -28,7 +28,7 @@ synth = PolySynth.new(
     ),
   ],
   amplifier: Amplifier.new(
-    volume: ModulationValue.new(1.0)
+    volume: ModulationValue.new(0.0)
       .add(Modulation::Adsr.new(
         attack: 0.05,
         hold: 0.1,

@@ -29,10 +29,10 @@ module Synthesizer
   end
 
 
-  SOFT_VOLUME = ModulationValue.new(1.0)
+  SOFT_VOLUME = ModulationValue.new(0.0)
     .add(Modulation::Adsr::SOFT, depth: 1.0)
 
-  HARD_VOLUME = ModulationValue.new(1.0)
+  HARD_VOLUME = ModulationValue.new(0.0)
     .add(Modulation::Adsr::HARD, depth: 1.0)
 
   SOFT = Amplifier.new(volume: SOFT_VOLUME)

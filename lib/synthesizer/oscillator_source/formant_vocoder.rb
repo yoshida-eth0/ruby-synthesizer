@@ -30,7 +30,7 @@ module Synthesizer
         @pronunciation = ModulationValue.create(pronunciation)
       end
 
-      def next(context, rate, sym, sync, l_gain, r_gain, phase_offset)
+      def next(context, rate, sym, sync, l_gain, r_gain, modulator_buf)
         soundinfo = context.soundinfo
         channels = context.channels
         window_size = context.window_size
@@ -39,7 +39,7 @@ module Synthesizer
         pronunciation_mod = context.pronunciation_mod
         pulse_context = context.pulse_context
 
-        pulse = Pulse.instance.next(pulse_context, rate, sym, sync, 0.5, 0.5, phase_offset).streams[0]
+        pulse = Pulse.instance.next(pulse_context, rate, sym, sync, 0.5, 0.5, modulator_buf).streams[0]
 
         notediff = Math.log2(rate.freq(soundinfo) / 440.0) * 12 + 69 - 36
         if notediff<0.0
@@ -104,8 +104,7 @@ module Synthesizer
         def initialize(soundinfo, note_perform, init_phase, pronunciation)
           super(soundinfo, note_perform, init_phase)
 
-          synth = note_perform.synth
-          @pronunciation_mod = ModulationValue.balance_generator(note_perform, synth.soundinfo.window_size.to_f, pronunciation)
+          @pronunciation_mod = ModulationValue.balance_generator(soundinfo, note_perform, soundinfo.window_size.to_f, pronunciation)
           @tmpbufs = Array.new(5) {|i| Vdsp::DoubleArray.new(soundinfo.window_size+2)}
           @pulse_context = Pulse.instance.generate_context(soundinfo, note_perform, init_phase)
         end

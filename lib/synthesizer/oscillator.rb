@@ -46,7 +46,7 @@ module Synthesizer
 
       if fixed_freq
         @carrier_freq = Freq.fixed(fixed_freq)
-      elsif ratio_freq
+      elsif ratio_freq && ratio_freq!=1.0
         @carrier_freq = Freq.ratio(ratio_freq)
       else
         @carrier_freq = Freq.thru

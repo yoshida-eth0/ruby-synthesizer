@@ -13,12 +13,11 @@ module Synthesizer
       # @param l2 [Float] LEVEL1とLEVEL3の中間レベル (0~99)
       # @param l3 [Float] 鍵を押さえている間の持続レベル (0~99)
       # @param l4 [Float] 鍵を離した後に戻る基準レベル (0~99)
-      # @param rate_scaling [Float] Rate scaling (0~7)
-      def initialize(r1:, r2:, r3:, r4:, l1:, l2:, l3:, l4:, rate_scaling: 0)
-        @r1 = AudioStream::Rate.dx7(r1, rate_scaling)
-        @r2 = AudioStream::Rate.dx7(r2, rate_scaling)
-        @r3 = AudioStream::Rate.dx7(r3, rate_scaling)
-        @r4 = AudioStream::Rate.dx7(r4, rate_scaling)
+      def initialize(r1:, r2:, r3:, r4:, l1:, l2:, l3:, l4:)
+        @r1 = AudioStream::Rate.dx7(r1)
+        @r2 = AudioStream::Rate.dx7(r2)
+        @r3 = AudioStream::Rate.dx7(r3)
+        @r4 = AudioStream::Rate.dx7(r4)
         @l1 = AudioStream::Decibel.dx7(l1).mag
         @l2 = AudioStream::Decibel.dx7(l2).mag
         @l3 = AudioStream::Decibel.dx7(l3).mag
@@ -90,12 +89,12 @@ end
 
 module AudioStream
   class Rate
-    def self.dx7(v, scale=0)
+    def self.dx7(v)
       if self===v
         v   
       else
         # NOTE: approximation, unknown formula
-        new(freq: Math.exp(v / (9.0 - scale)) / 42.0)
+        new(freq: Math.exp(v / 9.0) / 42.0)
       end 
     end 
   end

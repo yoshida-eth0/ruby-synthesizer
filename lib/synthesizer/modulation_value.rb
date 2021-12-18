@@ -13,6 +13,11 @@ module Synthesizer
       }
     end
 
+    def initialize_copy(obj)
+      @value = obj.value
+      @mods = obj.mods.dup
+    end
+
     # @param mod [Synthesizer::Modulation]
     # @param depth [Float] depth. volume => percent(-1.0~1.0, default=1.0), filter freq => relative value(hz), other => relative value
     def add(mod, depth: 1.0)

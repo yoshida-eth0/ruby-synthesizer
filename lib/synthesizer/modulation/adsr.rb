@@ -1,6 +1,9 @@
+require 'synthesizer/modulation/releasable_envelope'
+
 module Synthesizer
   module Modulation
     class Adsr
+      include ReleasableEnvelope
 
       # @param attack [AudioStream::Rate | Float] attack sec (0.0~)
       # @param attack_curve [Synthesizer::Curve]
@@ -62,6 +65,7 @@ module Synthesizer
             y = 1.0 - @release_curve[x]
             yld << y
           }
+          yld << 0.0
 
           # sustain
           if sustain
@@ -72,66 +76,22 @@ module Synthesizer
         end.each(&block)
       end
 
-      def generator(soundinfo, note_perform, samplecount, release_sustain:)
-        note_on = note_on_envelope(soundinfo, samplecount, sustain: true)
-        note_off = note_off_envelope(soundinfo, samplecount, sustain: release_sustain)
-        last = 0.0
 
-        -> {
-          if note_perform.note_on?
-            last = note_on.next
-          else
-            note_off.next * last
-          end
-        }
-      end
+      KEEP = Adsr.new(
+        attack: 0.0,
+        hold: 0.0,
+        decay: 0.0,
+        sustain: 1.0,
+        release: 1.0
+      )
 
-
-      def amp_generator(soundinfo, note_perform, samplecount, depth, &block)
-        bottom = 1.0 - depth
-        gen = generator(soundinfo, note_perform, samplecount, release_sustain: 0.0<bottom)
-
-        -> {
-          gen[] * depth + bottom
-        }
-      end
-
-      def balance_generator(soundinfo, note_perform, samplecount, depth, &block)
-        gen = generator(soundinfo, note_perform, samplecount, release_sustain: true)
-
-        -> {
-          gen[] * depth
-        }
-      end
-
-      def plot_data(soundinfo)
-        samplecount = soundinfo.window_size.to_f
-        note_on = note_on_envelope(soundinfo, samplecount, sustain: false)
-        note_off = note_off_envelope(soundinfo, samplecount, sustain: false)
-        last = 0.0
-
-        xs = []
-        ys = []
-
-        note_on.each {|y|
-          xs << xs.length
-          ys << y
-        }
-
-        last = ys.last || 0.0
-        note_off.each {|y|
-          xs << xs.length
-          ys << y * last
-        }
-
-        {x: xs, y: ys}
-      end
-
-      def plot(soundinfo)
-        data = plot_data(soundinfo)
-        Plotly::Plot.new(data: [data])
-      end
-
+      NONE = Adsr.new(
+        attack: 0.0,
+        hold: 0.0,
+        decay: 0.0,
+        sustain: 0.0,
+        release: 0.0
+      )
 
       SOFT = Adsr.new(
         attack: 0.05,

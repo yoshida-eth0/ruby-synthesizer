@@ -16,7 +16,7 @@ module Synthesizer
     # @param uni_num [Syntesizer::ModulationValue | Float] master voicing number (1.0~16.0)
     # @param uni_detune [Syntesizer::ModulationValue | Float] master voicing detune percent. 0.01=1cent 1.0=semitone (0.0~1.0)
     # @param uni_stereo [Syntesizer::ModulationValue | Float] oscillator voicing spread pan. -1.0=full inv 0.0=mono 1.0=full (-1.0~1.0)
-    def initialize(shape: Shape::Sine, volume: HARD_VOLUME, pan: 0.0, tune_semis: 0, tune_cents: 0, uni_num: 1.0, uni_detune: 0.0, uni_stereo: 0.0)
+    def initialize(volume: HARD_VOLUME, pan: 0.0, tune_semis: 0, tune_cents: 0, uni_num: 1.0, uni_detune: 0.0, uni_stereo: 0.0)
       @volume = ModulationValue.create(volume)
       @pan = ModulationValue.create(pan)
       @tune_semis = ModulationValue.create(tune_semis)
@@ -31,11 +31,13 @@ module Synthesizer
 
   SOFT_VOLUME = ModulationValue.new(0.0)
     .add(Modulation::Adsr::SOFT, depth: 1.0)
+    .freeze
 
   HARD_VOLUME = ModulationValue.new(0.0)
     .add(Modulation::Adsr::HARD, depth: 1.0)
+    .freeze
 
-  SOFT = Amplifier.new(volume: SOFT_VOLUME)
-
-  HARD = Amplifier.new(volume: HARD_VOLUME)
+  KEEP = Amplifier.new(volume: 1.0)
+  SOFT = Amplifier.new(volume: SOFT_VOLUME.dup)
+  HARD = Amplifier.new(volume: HARD_VOLUME.dup)
 end

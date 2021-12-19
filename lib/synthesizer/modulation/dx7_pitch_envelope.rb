@@ -2,30 +2,26 @@ require 'synthesizer/modulation/releasable_envelope'
 
 module Synthesizer
   module Modulation
-    class Dx7Envelope
+    class Dx7PitchEnvelope
       include ReleasableEnvelope
-
-      # 参考
-      # OPERATING GUIDE BOOK DIGITAL POLYPHONIC SYNTHESIZER DX7
-      # https://jp.yamaha.com/files/download/other_assets/1/316671/DX7J2.pdf
 
       # @param r1 [AudioStream::Rate | Float] 鍵を押した後LEVEL1までのレベル変化速度 (0~99)
       # @param r2 [AudioStream::Rate | Float] LEVEL1からLEVEL2までのレベル変化速度 (0~99)
       # @param r3 [AudioStream::Rate | Float] LEVEL2からLEVEL3までのレベル変化速度 (0~99)
       # @param r4 [AudioStream::Rate | Float] 鍵を離した後LEVEL4までのレベル変化速度 (0~99)
-      # @param l1 [Float] 鍵を弾いた後に達する初期レベル (0~99)
-      # @param l2 [Float] LEVEL1とLEVEL3の中間レベル (0~99)
-      # @param l3 [Float] 鍵を押さえている間の持続レベル (0~99)
-      # @param l4 [Float] 鍵を離した後に戻る基準レベル (0~99)
+      # @param l1 [Float] 鍵を弾いた後に達する初期ピッチ. 1octave=32, center=50 (0~99)
+      # @param l2 [Float] LEVEL1とLEVEL3の中間ピッチ. 1octave=32, center=50 (0~99)
+      # @param l3 [Float] 鍵を押さえている間の持続ピッチ. 1octave=32, center=50 (0~99)
+      # @param l4 [Float] 鍵を弾いた初期ピッチと鍵を離した後に戻る基準ピッチ. 1octave=32, center=50 (0~99)
       def initialize(r1:, r2:, r3:, r4:, l1:, l2:, l3:, l4:)
         @r1 = AudioStream::Rate.dx7(r1)
         @r2 = AudioStream::Rate.dx7(r2)
         @r3 = AudioStream::Rate.dx7(r3)
         @r4 = AudioStream::Rate.dx7(r4)
-        @l1 = AudioStream::Decibel.dx7(l1).mag
-        @l2 = AudioStream::Decibel.dx7(l2).mag
-        @l3 = AudioStream::Decibel.dx7(l3).mag
-        @l4 = AudioStream::Decibel.dx7(l4).mag
+        @l1 = AudioStream::Decibel.dx7_pitch(l1).mag
+        @l2 = AudioStream::Decibel.dx7_pitch(l2).mag
+        @l3 = AudioStream::Decibel.dx7_pitch(l3).mag
+        @l4 = AudioStream::Decibel.dx7_pitch(l4).mag
         @curve = Curve::Straight
       end
 
@@ -33,9 +29,10 @@ module Synthesizer
         Enumerator.new do |yld|
           # r1
           r1_len = (@r1.sample(soundinfo) / samplecount).to_i
+          l1_diff = @l1 - @l4
           r1_len.times {|i|
             x = i.to_f / r1_len
-            y = @curve[x] * @l1
+            y = @curve[x] * l1_diff + @l4
             yld << y
           }
 
@@ -93,23 +90,12 @@ end
 
 
 module AudioStream
-  class Rate
-    def self.dx7(v)
-      if self===v
-        v   
-      else
-        # NOTE: approximation, unknown formula
-        new(freq: Math.exp(v / 9.0) / 42.0)
-      end 
-    end 
-  end
-
   class Decibel
-    def self.dx7(v)
+    def self.dx7_pitch(v)
       if self===v
         v
       else
-        new(mag: v / 99.0)
+        new(mag: (v - 50.0) / 32.0 * 12.0)
       end
     end
   end

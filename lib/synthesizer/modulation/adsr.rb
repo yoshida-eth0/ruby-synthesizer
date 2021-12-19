@@ -56,14 +56,14 @@ module Synthesizer
         end.each(&block)
       end
 
-      def note_off_envelope(soundinfo, samplecount, sustain: false, &block)
+      def note_off_envelope(soundinfo, samplecount, last_level, sustain: false, &block)
         Enumerator.new do |yld|
           # release
           release_len = (@release.sample(soundinfo) / samplecount).to_i
           release_len.times {|i|
             x = i.to_f / release_len
             y = 1.0 - @release_curve[x]
-            yld << y
+            yld << y * last_level
           }
           yld << 0.0
 

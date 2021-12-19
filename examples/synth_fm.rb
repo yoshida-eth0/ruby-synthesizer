@@ -50,12 +50,8 @@ synth = FmSynth.new(
     carrier1: carrier1,
     modulator1: modulator1,
   },
-  algorithm: {
-    :modulator1 => :carrier1,
-  },
-  carriers: [
-    :carrier1
-  ],
+  algorithm: Algorithm.new
+    .add(:modulator1, :carrier1),
   lfo: Modulation::Lfo.new(
     shape: Shape::Sine,
     delay: Rate.sec(0.0),

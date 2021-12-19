@@ -2,19 +2,12 @@ module Synthesizer
   class FmSynth
 
     # @param operators [Hash[Symbol,Synthesizer::Oscillator]] key: Operator ID, value: Operator
-    # @param algorithm [Hash[Symbol,Symbol]] key: Modulator ID, value: Carrier ID
+    # @param algorithm [Synthesizer::Algorithm] modulation algorithm
     # @param lfo [Synthesizer::Modulation::Lfo] shared lfo
-    def initialize(operators: {}, algorithm: {}, carriers: [], lfo:, quality: Quality::LOW, soundinfo:)
+    def initialize(operators: {}, algorithm:, lfo:, quality: Quality::LOW, soundinfo:)
       @operators = operators
-
-      @algo_route = {}
-      algorithm.each {|modulator_id, carrier_id|
-        add_algorithm(modulator_id, carrier_id)
-      }
-
-      @carriers = [carriers].flatten.compact
+      @algorithm = algorithm
       @lfo = lfo
-
       @quality = quality
       @soundinfo = soundinfo
     end
@@ -24,19 +17,7 @@ module Synthesizer
       self
     end
 
-    def add_algorithm(modulator_id, carrier_id)
-      @algo_route[carrier_id] ||= []
-      @algo_route[carrier_id] << modulator_id
-      self
-    end
-
     def build
-      @carriers.each {|id|
-        if !@operators[id]
-          raise Error, "not found operator: #{id}"
-        end
-      }
-
       # create oscillators
       oscillators = @operators.map {|id,operator|
         [
@@ -57,9 +38,9 @@ module Synthesizer
       synthes = {}
 
       # connect modulator and carrier
-      @algo_route.each {|carrier_id, modulator_ids|
+      @algorithm.route.each {|carrier_id, modulator_ids|
         # operator id check
-        ids = [carrier_id] + modulator_ids
+        ids = [carrier_id] + modulator_ids.to_a
         ids.each {|id|
           if !oscillators[id]
             raise Error, "not found operator: #{id}"
@@ -69,7 +50,7 @@ module Synthesizer
         # connect
         carrier_osc = oscillators[carrier_id]
         modulator_ids.each {|modulator_id|
-          # create synth
+          # create modulator synth
           synthes[modulator_id] ||= PolySynth.new(
             oscillators: [
               oscillators[modulator_id],
@@ -84,9 +65,10 @@ module Synthesizer
         }
       }
 
-      # create output synth
+      # create carrier synth
+      carrier_ids = @operators.keys - @algorithm.modulator_ids
       PolySynth.new(
-        oscillators: @carriers.map{|id| oscillators[id]},
+        oscillators: carrier_ids.map{|id| oscillators[id]},
         amplifier: Amplifier::KEEP,
         quality: @quality,
         soundinfo: @soundinfo,

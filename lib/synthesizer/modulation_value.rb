@@ -20,7 +20,8 @@ module Synthesizer
 
     # @param mod [Synthesizer::Modulation]
     # @param depth [Float] depth. volume => percent(-1.0~1.0, default=1.0), filter freq => relative value(hz), other => relative value
-    def add(mod, depth: 1.0)
+    # @param level [Float] amplification level (0.0~1.0)
+    def add(mod, depth: 1.0, level: 1.0)
       depth ||= 1.0
       #if depth<-1.0
       #  depth = -1.0
@@ -28,7 +29,7 @@ module Synthesizer
       #  depth = 1.0
       #end
 
-      @mods << [mod, depth]
+      @mods << [mod, depth, level]
       self
     end
 
@@ -48,15 +49,17 @@ module Synthesizer
 
       # mods
       mods = []
+      level = 1.0
       modvals.each {|modval|
-        modval.mods.each {|mod, depth|
+        modval.mods.each {|mod, depth, level1|
           mods << mod.amp_generator(soundinfo, note_perform, samplecount, depth)
+          level *= level1
         }
       }
 
       -> {
         depth = mods.map(&:[]).inject(1.0, &:*)
-        value * depth
+        value * depth * level
       }
     end
 
@@ -69,15 +72,17 @@ module Synthesizer
 
       # mods
       mods = []
+      level = 1.0
       modvals.each {|modval|
-        modval.mods.each {|mod, depth|
+        modval.mods.each {|mod, depth, level1|
           mods << mod.balance_generator(soundinfo, note_perform, samplecount, depth)
+          level *= level1
         }
       }
 
       -> {
         depth = mods.map(&:[]).sum
-        value + depth
+        value + depth * level
       }
     end
   end

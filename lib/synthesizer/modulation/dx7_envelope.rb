@@ -87,30 +87,12 @@ module Synthesizer
           end
         end.each(&block)
       end
-    end
-  end
-end
 
 
-module AudioStream
-  class Rate
-    def self.dx7(v)
-      if self===v
-        v   
-      else
-        # NOTE: approximation, unknown formula
-        new(freq: Math.exp(v / 9.0) / 42.0)
-      end 
-    end 
-  end
-
-  class Decibel
-    def self.dx7(v)
-      if self===v
-        v
-      else
-        new(mag: v / 99.0)
-      end
+      HARD = Dx7Envelope.new(
+        r1: 99, r2: 99, r3: 99, r4: 99,
+        l1: 99, l2: 99, l3: 99,  l4: 0
+      )
     end
   end
 end

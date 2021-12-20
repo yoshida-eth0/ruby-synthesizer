@@ -7,7 +7,7 @@ module Synthesizer
       # @param attack [AudioStream::Rate | Float] attack sec (0.0~)
       # @param attack_curve [Synthesizer::Curve]
       # @param phase [Float] phase percent (0.0~1.0)
-      # @param rate [AudioStream::Rate | Float] wave freq (0.0~)
+      # @param rate [AudioStream::Rate | Float] wave freq (0.1~)
       def initialize(shape: Shape::Sine, delay: 0.0, attack: 0.0, attack_curve: Curve::Straight, phase: 0.0, rate: 0.3)
         @shape = shape
         @delay = AudioStream::Rate.sec(delay)
@@ -61,6 +61,15 @@ module Synthesizer
           gen.next * depth
         }
       end
+
+      KEEP = Lfo.new(
+        shape: Shape::Sine,
+        delay: 0.0,
+        attack: 0.0,
+        attack_curve: Curve::Straight,
+        phase: 0.0,
+        rate: 0.1
+      )
     end
   end
 end

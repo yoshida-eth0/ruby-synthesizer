@@ -3,11 +3,13 @@ module Synthesizer
 
     # @param operators [Hash[Symbol,Synthesizer::Oscillator]] key: Operator ID, value: Operator
     # @param algorithm [Synthesizer::Algorithm] modulation algorithm
+    # @param pitch_envelope [Synthesizer::Modulation::Dx7PitchEnvelope] shared pitch envelope
     # @param lfo [Synthesizer::Modulation::Lfo] shared lfo
-    def initialize(operators: {}, algorithm:, lfo:, quality: Quality::LOW, soundinfo:)
+    def initialize(operators: {}, algorithm: Algorithm.new, lfo: Modulation::Lfo::KEEP, pitch_envelope: Modulation::Dx7PitchEnvelope::KEEP, quality: Quality::LOW, soundinfo:)
       @operators = operators
       @algorithm = algorithm
       @lfo = lfo
+      @pitch_envelope = pitch_envelope
       @quality = quality
       @soundinfo = soundinfo
     end
@@ -25,12 +27,14 @@ module Synthesizer
           Oscillator.new(
             source: operator.source,
             volume: ModulationValue.new(0.0)
-              .add(operator.envelope, depth: operator.level)
+              .add(operator.envelope, depth: 1.0, level: operator.level)
               .add(@lfo, depth: operator.amd),
             fixed_freq: operator.fixed_freq,
             ratio_freq: operator.ratio_freq,
             tune_cents: ModulationValue.new(0.0)
               .add(@lfo, depth: operator.pmd)
+              #.add(@pitch_envelope, depth: 99.0/32.0/2)
+              .add(@pitch_envelope, depth: 99)
             )
         ]
       }.to_h

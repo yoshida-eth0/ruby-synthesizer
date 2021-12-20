@@ -60,16 +60,20 @@ synth = FmSynth.new(
     phase: 0.0,
     rate: Rate::sec(0.2)
   ),
+  pitch_envelope: Modulation::Dx7PitchEnvelope::KEEP,
   quality: Quality::HIGH,
   soundinfo: soundinfo
 ).build
 
 bufs = []
 
-synth.note_on(Note.new(72))
+synth.note_on(Note.new(72-12))
+bufs += 10.times.map {|_| synth.next}
+synth.note_on(Note.new(76-12))
 bufs += 100.times.map {|_| synth.next}
 
-synth.note_off(Note.new(72))
+synth.note_off(Note.new(72-12))
+synth.note_off(Note.new(76-12))
 bufs += 50.times.map {|_| synth.next}
 
 

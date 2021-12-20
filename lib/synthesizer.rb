@@ -6,6 +6,8 @@ require 'audio_stream/audio_input_synth.rb'
 require 'audio_stream/audio_input_metronome.rb'
 require 'audio_stream/audio_input_step_editor'
 require 'synthesizer/step_editor'
+require 'audio_stream/rate/dx7'
+require 'audio_stream/decibel/dx7'
 
 # generate wave
 require 'synthesizer/shape'
@@ -34,6 +36,9 @@ require 'synthesizer/utils'
 require 'synthesizer/fm_synth'
 require 'synthesizer/operator'
 require 'synthesizer/algorithm'
+
+# drum machine
+require 'synthesizer/drum_machine_designer'
 
 module Synthesizer
 end

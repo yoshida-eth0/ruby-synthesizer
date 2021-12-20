@@ -84,19 +84,18 @@ module Synthesizer
           end
         end.each(&block)
       end
-    end
-  end
-end
 
 
-module AudioStream
-  class Decibel
-    def self.dx7_pitch(v)
-      if self===v
-        v
-      else
-        new(mag: (v - 50.0) / 32.0 * 12.0)
-      end
+      KEEP = Dx7PitchEnvelope.new(
+        r1: 99,
+        r2: 99,
+        r3: 99,
+        r4: 99,
+        l1: 50,
+        l2: 50,
+        l3: 50,
+        l4: 50
+      )
     end
   end
 end

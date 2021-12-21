@@ -4,7 +4,8 @@ module AudioStream
       if self===v
         v
       else
-        new(mag: v / 99.0)
+        # NOTE: approximation, unknown formula
+        new(mag: (v / 99.0) ** 4)
       end
     end
 

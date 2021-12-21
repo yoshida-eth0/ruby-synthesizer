@@ -14,7 +14,7 @@ module Synthesizer
         if modulator_buf
           modulator_buf = modulator_buf.mono
           dst = window_size.times.map {|i|
-            sample(context, pos.next(hz, sym, sync) + modulator_buf.streams[0][i])
+            sample(context, pos.next(hz + hz * modulator_buf.streams[0][i], sym, sync))
           }
         else
           dst = window_size.times.map {|i|

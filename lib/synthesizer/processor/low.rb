@@ -57,7 +57,7 @@ module Synthesizer
             end
           }.concat.inject(&:+)
 
-          buf = unison.next(uni_num, uni_detune, uni_stereo, volume, pan, tune_semis, tune_cents, sym, sync, modulator_buf, osc.carrier_freq)
+          buf = unison.next(uni_num, uni_detune, uni_stereo, volume, pan, tune_semis, tune_cents, sym, sync, osc.carrier_freq, modulator_buf, osc.fm_feedback)
 
           # Filter
           if filter_mod

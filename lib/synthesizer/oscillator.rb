@@ -14,13 +14,14 @@ module Synthesizer
     attr_reader :uni_stereo
     attr_reader :carrier_freq
     attr_reader :freq_modulators
+    attr_reader :fm_feedback
 
     # @param source [Synthesizer::OscillatorSource] oscillator waveform source
     # @param volume [ModulationValue | Float] oscillator volume. mute=0.0 max=1.0
     # @param pan [ModulationValue | Float] oscillator pan. left=-1.0 center=0.0 right=1.0 (-1.0~1.0)
     # @param tune_semis [ModulationValue | Integer] oscillator pitch semitone
     # @param tune_cents [ModulationValue | Integer] oscillator pitch cent
-    # @param sym [nil] TODO not implemented
+    # @param sym [nil] TODO: not implemented
     # @param phase [ModulationValue | Float] oscillator waveform shape start phase percent (0.0~1.0,nil) nil=random
     # @param sync [ModulationValue | Integer] oscillator sync pitch 1.0=semitone 12.0=octave (0.0~48.0)
     # @param uni_num [ModulationValue | Float] oscillator voicing number (1.0~16.0)
@@ -29,7 +30,8 @@ module Synthesizer
     # @param fixed_freq [AudioStream::Rate | Float] carrier fixed frequency
     # @param ratio_freq [Float] carrier ratio frequency
     # @param freq_modulators [FreqModulator] frequency modulator
-    def initialize(source: OscillatorSource::Sine.instance, volume: 1.0, pan: 0.0, tune_semis: 0, tune_cents: 0, sym: 0, phase: nil, sync: 0, uni_num: 1.0, uni_detune: 0.0, uni_stereo: 0.0, fixed_freq: nil, ratio_freq: nil, freq_modulators: [])
+    # @param fm_feedback [Integer] TODO: frequency modulator feedback (0~)
+    def initialize(source: OscillatorSource::Sine.instance, volume: 1.0, pan: 0.0, tune_semis: 0, tune_cents: 0, sym: 0, phase: nil, sync: 0, uni_num: 1.0, uni_detune: 0.0, uni_stereo: 0.0, fixed_freq: nil, ratio_freq: nil, freq_modulators: [], fm_feedback: 0)
       @source = source
 
       @volume = ModulationValue.create(volume)
@@ -53,6 +55,7 @@ module Synthesizer
       end
 
       @freq_modulators = [freq_modulators].flatten.compact
+      @fm_feedback = fm_feedback
     end
   end
 end

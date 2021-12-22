@@ -4,31 +4,26 @@ module Synthesizer
       def initialize
       end
 
-      def next(context, rate, sym, sync, l_gain, r_gain, modulator_buf)
+      def next(context, rate, sym, sync, modulator_buf, fm_feedback)
         soundinfo = context.soundinfo
-        channels = context.channels
         window_size = context.window_size
         pos = context.pos
         hz = rate.freq(soundinfo)
 
+        # TODO feedback
+
         if modulator_buf
-          modulator_buf = modulator_buf.mono
+          modulator_stream = modulator_buf.mono.streams[0]
           dst = window_size.times.map {|i|
-            sample(context, pos.next(hz + hz * modulator_buf.streams[0][i], sym, sync))
+            sample(context, pos.next(hz + hz * modulator_stream[i], sym, sync))
           }
         else
           dst = window_size.times.map {|i|
             sample(context, pos.next(hz, sym, sync))
           }
         end
-        dst = Vdsp::DoubleArray.create(dst)
 
-        case channels
-        when 1
-          Buffer.new(dst * l_gain)
-        when 2
-          Buffer.new(dst * l_gain, dst * r_gain)
-        end
+        Vdsp::DoubleArray.create(dst)
       end
 
       def sample(context, phase)
@@ -54,10 +49,6 @@ module Synthesizer
 
         def window_size
           @window_size ||= soundinfo.window_size
-        end
-
-        def channels
-          @channels ||= soundinfo.channels
         end
 
         def samplerate

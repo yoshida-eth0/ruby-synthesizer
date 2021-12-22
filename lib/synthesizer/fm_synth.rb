@@ -20,6 +20,9 @@ module Synthesizer
     end
 
     def build
+      mono_soundinfo = @soundinfo.clone
+      mono_soundinfo.channels = 1
+
       # create oscillators
       oscillators = @operators.map {|id,operator|
         [
@@ -34,8 +37,9 @@ module Synthesizer
             tune_cents: ModulationValue.new(0.0)
               .add(@lfo, depth: operator.pmd)
               #.add(@pitch_envelope, depth: 99.0/32.0/2)
-              .add(@pitch_envelope, depth: 99)
-            )
+              .add(@pitch_envelope, depth: 99),
+            fm_feedback: operator.feedback,
+          )
         ]
       }.to_h
 
@@ -61,7 +65,7 @@ module Synthesizer
             ],
             amplifier: Amplifier::KEEP,
             quality: @quality,
-            soundinfo: @soundinfo,
+            soundinfo: mono_soundinfo,
           )
 
           # connect

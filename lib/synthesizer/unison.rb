@@ -11,7 +11,7 @@ module Synthesizer
       }
     end
 
-    def next(uni_num, uni_detune, uni_stereo, volume, pan, tune_semis, tune_cents, sym, sync, modulator_buf, carrier_freq)
+    def next(uni_num, uni_detune, uni_stereo, volume, pan, tune_semis, tune_cents, sym, sync, carrier_freq, modulator_buf, fm_feedback)
       if uni_num<1.0
         uni_num = 1.0
       elsif UNI_NUM_MAX<uni_num
@@ -24,7 +24,8 @@ module Synthesizer
         l_gain, r_gain = Utils.panning(pan)
         freq = carrier_freq.freq(@soundinfo, @note_perform.note, semis: tune_semis, cents: tune_cents)
 
-        buffer = @source.next(context, freq, sym, sync, l_gain, r_gain, modulator_buf)
+        stream = @source.next(context, freq, sym, sync, modulator_buf, fm_feedback)
+        AudioStream::Buffer.new(stream * (l_gain * volume), stream * (r_gain * volume))
       else
         buffer = uni_num.ceil.times.map {|i|
           context = @source_contexts[i]
@@ -43,13 +44,10 @@ module Synthesizer
           l_gain, r_gain = Utils.panning(pan + diff_pan)
           freq = carrier_freq.freq(@soundinfo, @note_perform.note, semis: tune_semis, cents: tune_cents + detune_cents)
 
-          @source.next(context, freq, sym, sync, l_gain * uni_volume / uni_num, r_gain * uni_volume / uni_num, modulator_buf)
+          stream = @source.next(context, freq, sym, sync, modulator_buf, fm_feedback)
+          AudioStream::Buffer.new(stream * (l_gain * uni_volume / uni_num * volume), stream * (r_gain * uni_volume / uni_num * volume))
         }.inject(:+)
       end
-
-      AudioStream::Buffer.new(*buffer.streams.map {|stream|
-        stream * volume
-      })
     end
   end
 end

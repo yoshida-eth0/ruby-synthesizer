@@ -30,16 +30,15 @@ module Synthesizer
         @pronunciation = ModulationValue.create(pronunciation)
       end
 
-      def next(context, rate, sym, sync, l_gain, r_gain, modulator_buf)
+      def next(context, rate, sym, sync, modulator_buf, fm_feedback)
         soundinfo = context.soundinfo
-        channels = context.channels
         window_size = context.window_size
         samplerate = context.samplerate
         tmpbufs = context.tmpbufs
         pronunciation_mod = context.pronunciation_mod
         pulse_context = context.pulse_context
 
-        pulse = Pulse.instance.next(pulse_context, rate, sym, sync, 0.5, 0.5, modulator_buf).streams[0]
+        pulse = Pulse.instance.next(pulse_context, rate, sym, sync, modulator_buf, fm_feedback)
 
         notediff = Math.log2(rate.freq(soundinfo) / 440.0) * 12 + 69 - 36
         if notediff<0.0
@@ -61,12 +60,7 @@ module Synthesizer
           resfil(pulse, tmpbufs[i], @@gain[i], w, 1.0/samplerate, window_size)
         }.inject(:+)
 
-        case channels
-        when 1
-          Buffer.new(dst * l_gain)
-        when 2
-          Buffer.new(dst * l_gain, dst * r_gain)
-        end
+        dst
       end
 
       def resfil(x, v, a, w, dt, len)

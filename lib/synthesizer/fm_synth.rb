@@ -38,6 +38,7 @@ module Synthesizer
               .add(@lfo, depth: operator.pmd)
               #.add(@pitch_envelope, depth: 99.0/32.0/2)
               .add(@pitch_envelope, depth: 99),
+            phase: operator.phase,
             fm_feedback: operator.feedback,
           )
         ]

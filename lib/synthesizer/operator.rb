@@ -8,6 +8,7 @@ module Synthesizer
     attr_reader :envelope
     attr_reader :pmd
     attr_reader :amd
+    attr_reader :phase
     attr_reader :feedback
 
     # @param source [Synthesizer::OscillatorSource] operator waveform source
@@ -17,8 +18,9 @@ module Synthesizer
     # @param envelope [Synthesizer::Modulation]
     # @param pmd [Float] pitch modulation depth for shared lfo
     # @param amd [Float] amplifier modulation depth for shared lfo
+    # @param phase [Float] oscillator waveform shape start phase percent (0.0~1.0,nil) nil=random
     # @param feedback [Integer] TODO: freq modulator feedback (0~)
-    def initialize(source: OscillatorSource::Sine.instance, level: 1.0, fixed_freq: nil, ratio_freq: nil, envelope:, pmd: 0.0, amd: 0.0, feedback: 0)
+    def initialize(source: OscillatorSource::Sine.instance, level: 1.0, fixed_freq: nil, ratio_freq: nil, envelope:, pmd: 0.0, amd: 0.0, phase: nil, feedback: 0)
       @source = source
       @level = level
       @fixed_freq = fixed_freq
@@ -26,6 +28,7 @@ module Synthesizer
       @envelope = envelope
       @pmd = pmd
       @amd = amd
+      @phase = phase
       @feedback = feedback
     end
   end

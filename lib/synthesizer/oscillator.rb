@@ -30,7 +30,7 @@ module Synthesizer
     # @param fixed_freq [AudioStream::Rate | Float] carrier fixed frequency
     # @param ratio_freq [Float] carrier ratio frequency
     # @param freq_modulators [FreqModulator] frequency modulator
-    # @param fm_feedback [Integer] TODO: frequency modulator feedback (0~)
+    # @param fm_feedback [Integer] frequency modulator feedback (0~7)
     def initialize(source: OscillatorSource::Sine.instance, volume: 1.0, pan: 0.0, tune_semis: 0, tune_cents: 0, sym: 0, phase: nil, sync: 0, uni_num: 1.0, uni_detune: 0.0, uni_stereo: 0.0, fixed_freq: nil, ratio_freq: nil, freq_modulators: [], fm_feedback: 0)
       @source = source
 
@@ -55,7 +55,7 @@ module Synthesizer
       end
 
       @freq_modulators = [freq_modulators].flatten.compact
-      @fm_feedback = fm_feedback
+      @fm_feedback = fm_feedback.to_i
     end
   end
 end

@@ -9,83 +9,134 @@ module Synthesizer
       # OPERATING GUIDE BOOK DIGITAL POLYPHONIC SYNTHESIZER DX7
       # https://jp.yamaha.com/files/download/other_assets/1/316671/DX7J2.pdf
 
-      # @param r1 [AudioStream::Rate | Float] 鍵を押した後LEVEL1までのレベル変化速度 (0~99)
-      # @param r2 [AudioStream::Rate | Float] LEVEL1からLEVEL2までのレベル変化速度 (0~99)
-      # @param r3 [AudioStream::Rate | Float] LEVEL2からLEVEL3までのレベル変化速度 (0~99)
-      # @param r4 [AudioStream::Rate | Float] 鍵を離した後LEVEL4までのレベル変化速度 (0~99)
-      # @param l1 [Float] 鍵を弾いた後に達する初期レベル (0~99)
-      # @param l2 [Float] LEVEL1とLEVEL3の中間レベル (0~99)
-      # @param l3 [Float] 鍵を押さえている間の持続レベル (0~99)
-      # @param l4 [Float] 鍵を離した後に戻る基準レベル (0~99)
+      # @param r1 [Integer] 鍵を押した後LEVEL1までのレベル変化速度 (0~99)
+      # @param r2 [Integer] LEVEL1からLEVEL2までのレベル変化速度 (0~99)
+      # @param r3 [Integer] LEVEL2からLEVEL3までのレベル変化速度 (0~99)
+      # @param r4 [Integer] 鍵を離した後LEVEL4までのレベル変化速度 (0~99)
+      # @param l1 [Integer] 鍵を弾いた後に達する初期レベル (0~99)
+      # @param l2 [Integer] LEVEL1とLEVEL3の中間レベル (0~99)
+      # @param l3 [Integer] 鍵を押さえている間の持続レベル (0~99)
+      # @param l4 [Integer] 鍵を離した後に戻る基準レベル (0~99)
       def initialize(r1:, r2:, r3:, r4:, l1:, l2:, l3:, l4:)
-        @r1 = AudioStream::Rate.dx7(r1)
-        @r2 = AudioStream::Rate.dx7(r2)
-        @r3 = AudioStream::Rate.dx7(r3)
-        @r4 = AudioStream::Rate.dx7(r4)
-        @l1 = AudioStream::Decibel.dx7(l1).mag
-        @l2 = AudioStream::Decibel.dx7(l2).mag
-        @l3 = AudioStream::Decibel.dx7(l3).mag
-        @l4 = AudioStream::Decibel.dx7(l4).mag
-        @curve = Curve::Straight
+        @rates = [r1.to_i, r2.to_i, r3.to_i, r4.to_i]
+        @levels = [l1.to_i, l2.to_i, l3.to_i, l4.to_i]
       end
 
-      def note_on_envelope(soundinfo, samplecount, sustain: false, &block)
+      def note_on_envelope(soundinfo, samplecount, ctx, sustain: false, &block)
         Enumerator.new do |yld|
-          # r1
-          r1_len = (@r1.sample(soundinfo) / samplecount).to_i
-          r1_len.times {|i|
-            x = i.to_f / r1_len
-            y = @curve[x] * @l1
-            yld << y
-          }
-
-          # r2
-          r2_len = (@r2.sample(soundinfo) / samplecount).to_i
-          l2_diff = @l2 - @l1
-          r2_len.times {|i|
-            x = i.to_f / r2_len
-            y = @curve[x] * l2_diff + @l1
-            yld << y
-          }
-
-          # r3
-          r3_len = (@r3.sample(soundinfo) / samplecount).to_i
-          l3_diff = @l3 - @l2
-          r3_len.times {|i|
-            x = i.to_f / r3_len
-            y = @curve[x] * l3_diff + @l2
-            yld << y
-          }
-          yld << @l3
+          while ctx.state < 3
+            yld << ctx.render(true)
+          end
 
           # sustain
           if sustain
             loop {
-              yld << @l3
+              yld << ctx.render(true)
             }
           end
         end.each(&block)
       end
 
-      def note_off_envelope(soundinfo, samplecount, last_level, sustain: false, &block)
+      def note_off_envelope(soundinfo, samplecount, last_level, ctx, sustain: false, &block)
         Enumerator.new do |yld|
-          # r4
-          r4_len = (@r4.sample(soundinfo) / samplecount).to_i
-          l4_diff = @l4 - last_level
-          r4_len.times {|i|
-            x = i.to_f / r4_len
-            y = @curve[x] * l4_diff + last_level
-            yld << y
-          }
-          yld << @l4
+          ctx.advance(3)
+
+          while ctx.state < 4
+            yld << ctx.render(false)
+          end
 
           # sustain
           if sustain
             loop {
-              yld << @l4
+              yld << ctx.render(false)
             }
           end
         end.each(&block)
+      end
+
+      def create_context(soundinfo)
+        Context.new(soundinfo, @rates, @levels)
+      end
+
+      def generator(soundinfo, note_perform, samplecount, release_sustain:)
+        ctx = create_context(soundinfo)
+        note_on = note_on_envelope(soundinfo, samplecount, ctx, sustain: true)
+        note_off = nil
+        last_level = 0.0
+
+        -> {
+          if note_perform.note_on?
+            last_level = note_on.next
+          else
+            note_off ||= note_off_envelope(soundinfo, samplecount, last_level, ctx, sustain: release_sustain)
+            note_off.next
+          end
+        }
+      end
+
+
+      # EnvelopeDX7 by Matt Montag used with modifications under MIT license.
+      # Copyright (c) 2014 Matt Montag
+      # https://github.com/mmontag/dx7-synth-js/blob/master/src/envelope-dx7.js
+
+      class Context
+        @@outputlevel = [0, 5, 9, 13, 17, 20, 23, 25, 27, 29, 31, 33, 35, 37, 39,
+          41, 42, 43, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
+          62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
+          81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
+          100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114,
+          115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127];
+
+        @@output_lut = 4096.times.map {|i|
+          db = (i - 3824) * 0.0235
+          20 ** (db / 20)
+        }
+
+        attr_reader :state
+
+        def initialize(soundinfo, rates, levels)
+          @samplescale = 44100.0 / soundinfo.samplerate * 0.5
+          @rates = rates
+          @levels = levels
+
+          @state = nil
+          @level = 0
+          @decayIncrement = 0
+
+          advance(0)
+        end
+
+        def render(note_on)
+          if @state < 3 || @state<4 && !note_on
+            lev = @level
+            if @rising
+              lev += @decayIncrement * (2 + (@targetlevel - lev) / 256);
+              if @targetlevel <= lev
+                lev = @targetlevel
+                advance(@state + 1);
+              end
+            else
+              lev -= @decayIncrement
+              if lev <= @targetlevel
+                lev = @targetlevel
+                advance(@state + 1);
+              end
+            end
+            @level = lev
+          end
+          @@output_lut[@level.floor]
+        end
+
+        def advance(newstate)
+          @state = newstate
+          if @state < 4
+            newlevel = @levels[newstate]
+            @targetlevel = [0, (@@outputlevel[newlevel] << 5) - 224].max
+            @rising = (@targetlevel - @level) > 0
+            qr = [63, ((@rates[@state] * 41) >> 6)].min
+            @decayIncrement = (2 ** (qr/4.0)) * @samplescale
+          end
+        end
       end
 
 

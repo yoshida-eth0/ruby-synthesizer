@@ -15,42 +15,19 @@ module Synthesizer
           modulator_stream = modulator_buf.mono.streams[0]
 
           dst = window_size.times.map {|i|
-            fb1 = modulator_stream[i]
+            fb1 = modulator_stream[i] * 4
             fm_feedback.times {|i|
-              fb1 = fb1 + sample(context, feedback_poses[i].next(hz, sym, sync) + fb1)
+              fb1 = fb1 + sample(context, feedback_poses[i].next(hz, sym, sync) + fb1) * 4
             }
             sample(context, pos.next(hz, sym, sync) + fb1)
           }
         else
           dst = window_size.times.map {|i|
-            # no feedback
-            #sample(context, pos.next(hz, sym, sync))
-
-            # *** feedback impl plan 1 ***
             fb1 = 0.0
             fm_feedback.times {|i|
-              fb1 = fb1 + sample(context, feedback_poses[i].next(hz, sym, sync) + fb1)
+              fb1 = fb1 + sample(context, feedback_poses[i].next(hz, sym, sync) + fb1) * 4
             }
             sample(context, pos.next(hz, sym, sync) + fb1)
-
-            # *** feedback impl plan 2 ***
-            #fb1 = sample(context, feedback_poses[0].next(hz, sym, sync))
-            #sample(context, pos.next(hz, sym, sync) + fb1 * fm_feedback)
-
-            # *** feedback impl plan 3 ***
-            #fb1 = 0.0
-            #fb2 = 0.0
-            #fm_feedback.times {|i|
-            #  fb1 = sample(context, feedback_poses[i].next(hz, sym, sync) + fb1)
-            #  fb2 += fb1
-            #}
-            #sample(context, pos.next(hz, sym, sync) + fb2)
-
-            # *** feedback impl plan 4 ***
-            #fb1 = fm_feedback.times.map {|i|
-            #  sample(context, feedback_poses[i].next(hz*i, sym, sync))
-            #}.inject(0.0, &:+)
-            #sample(context, pos.next(hz, sym, sync) + fb1)
           }
         end
 

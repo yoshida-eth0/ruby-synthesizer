@@ -2,16 +2,21 @@ module Synthesizer
   module Modulation
     module ReleasableEnvelope
 
-      def note_on_envelope(soundinfo, samplecount, sustain: false, &block)
-        raise Error, "not implemented abstruct method: #{self.class.name}.note_on_envelope(soundinfo, samplecount, sustain:, &block)"
+      def note_on_envelope(soundinfo, samplecount, context, sustain: false, &block)
+        raise Error, "not implemented abstruct method: #{self.class.name}.note_on_envelope(soundinfo, samplecount, context, sustain:, &block)"
       end
 
-      def note_off_envelope(soundinfo, samplecount, last_level, sustain: false, &block)
-        raise Error, "not implemented abstruct method: #{self.class.name}.note_off_envelope(soundinfo, samplecount, last_level, sustain:, &block)"
+      def note_off_envelope(soundinfo, samplecount, last_level, context, sustain: false, &block)
+        raise Error, "not implemented abstruct method: #{self.class.name}.note_off_envelope(soundinfo, samplecount, last_level, context, sustain:, &block)"
+      end
+
+      def create_context(soundinfo)
+        raise Error, "not implemented abstruct method: #{self.class.name}.create_context(soundinfo)"
       end
 
       def generator(soundinfo, note_perform, samplecount, release_sustain:)
-        note_on = note_on_envelope(soundinfo, samplecount, sustain: true)
+        context = create_context(soundinfo)
+        note_on = note_on_envelope(soundinfo, samplecount, context, sustain: true)
         note_off = nil
         last_level = 0.0
 
@@ -19,7 +24,7 @@ module Synthesizer
           if note_perform.note_on?
             last_level = note_on.next
           else
-            note_off ||= note_off_envelope(soundinfo, samplecount, last_level, sustain: release_sustain)
+            note_off ||= note_off_envelope(soundinfo, samplecount, last_level, context, sustain: release_sustain)
             note_off.next
           end
         }
@@ -45,7 +50,8 @@ module Synthesizer
 
       def plot_data(soundinfo, sustain: 0.0)
         samplecount = soundinfo.window_size.to_f
-        note_on = note_on_envelope(soundinfo, samplecount, sustain: false)
+        context = create_context(soundinfo)
+        note_on = note_on_envelope(soundinfo, samplecount, context, sustain: false)
         sustain = AudioStream::Rate.sec(sustain)
 
         xs = []
@@ -67,7 +73,7 @@ module Synthesizer
         end
 
         last_level = ys.last || 0.0
-        note_off = note_off_envelope(soundinfo, samplecount, last_level, sustain: false)
+        note_off = note_off_envelope(soundinfo, samplecount, last_level, context, sustain: false)
         note_off.each {|y|
           xs << xs.length
           ys << y

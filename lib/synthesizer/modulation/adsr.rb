@@ -24,7 +24,11 @@ module Synthesizer
         @release_curve = release_curve
       end
 
-      def note_on_envelope(soundinfo, samplecount, sustain: false, &block)
+      def create_context(soundinfo)
+        nil
+      end
+
+      def note_on_envelope(soundinfo, samplecount, context, sustain: false, &block)
         Enumerator.new do |yld|
           # attack
           attack_len = (@attack.sample(soundinfo) / samplecount).to_i
@@ -56,7 +60,7 @@ module Synthesizer
         end.each(&block)
       end
 
-      def note_off_envelope(soundinfo, samplecount, last_level, sustain: false, &block)
+      def note_off_envelope(soundinfo, samplecount, last_level, context, sustain: false, &block)
         Enumerator.new do |yld|
           # release
           release_len = (@release.sample(soundinfo) / samplecount).to_i

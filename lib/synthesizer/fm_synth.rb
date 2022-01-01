@@ -3,13 +3,19 @@ module Synthesizer
 
     # @param operators [Hash[Symbol,Synthesizer::Oscillator]] key: Operator ID, value: Operator
     # @param algorithm [Synthesizer::Algorithm] modulation algorithm
-    # @param pitch_envelope [Synthesizer::Modulation::Dx7PitchEnvelope] shared pitch envelope
     # @param lfo [Synthesizer::Modulation::Lfo] shared lfo
-    def initialize(operators: {}, algorithm: Algorithm.new, lfo: Modulation::Lfo::KEEP, pitch_envelope: Modulation::Dx7PitchEnvelope::KEEP, quality: Quality::LOW, soundinfo:)
+    # @param pitch_envelope [Synthesizer::Modulation::Dx7PitchEnvelope] shared pitch envelope
+    # @param filter [Synthesizer::Filter] filter
+    # @param amplifier [Synthesizer::Amplifier] amplifier
+    # @param quality [Synthesizer::Quality] processor quality
+    # @param soundinfo [AudioStream::SoundInfo]
+    def initialize(operators: {}, algorithm: Algorithm.new, lfo: Modulation::Lfo::KEEP, pitch_envelope: Modulation::Dx7PitchEnvelope::KEEP, filter: nil, amplifier: Amplifier::KEEP, quality: Quality::LOW, soundinfo:)
       @operators = operators
       @algorithm = algorithm
       @lfo = lfo
       @pitch_envelope = pitch_envelope
+      @filter = filter
+      @amplifier = amplifier
       @quality = quality
       @soundinfo = soundinfo
     end
@@ -78,7 +84,8 @@ module Synthesizer
       carrier_ids = @operators.keys - @algorithm.modulator_ids
       PolySynth.new(
         oscillators: carrier_ids.map{|id| oscillators[id]},
-        amplifier: Amplifier::KEEP,
+        filter: @filter,
+        amplifier: @amplifier,
         quality: @quality,
         soundinfo: @soundinfo,
       )

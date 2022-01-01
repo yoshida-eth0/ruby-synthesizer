@@ -25,7 +25,11 @@ module Synthesizer
         @curve = Curve::Straight
       end
 
-      def note_on_envelope(soundinfo, samplecount, sustain: false, &block)
+      def create_context(soundinfo)
+        nil
+      end
+
+      def note_on_envelope(soundinfo, samplecount, context, sustain: false, &block)
         Enumerator.new do |yld|
           # r1
           r1_len = (@r1.sample(soundinfo) / samplecount).to_i
@@ -64,7 +68,7 @@ module Synthesizer
         end.each(&block)
       end
 
-      def note_off_envelope(soundinfo, samplecount, last_level, sustain: false, &block)
+      def note_off_envelope(soundinfo, samplecount, last_level, context, sustain: false, &block)
         Enumerator.new do |yld|
           # r4
           r4_len = (@r4.sample(soundinfo) / samplecount).to_i

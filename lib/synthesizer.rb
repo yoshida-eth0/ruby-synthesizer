@@ -6,7 +6,6 @@ require 'audio_stream/audio_input_synth.rb'
 require 'audio_stream/audio_input_metronome.rb'
 require 'audio_stream/audio_input_step_editor'
 require 'synthesizer/step_editor'
-require 'audio_stream/rate/dx7'
 require 'audio_stream/decibel/dx7'
 
 # generate wave

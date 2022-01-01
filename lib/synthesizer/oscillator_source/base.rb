@@ -15,9 +15,9 @@ module Synthesizer
           modulator_stream = modulator_buf.mono.streams[0]
 
           dst = window_size.times.map {|i|
-            fb1 = modulator_stream[i] * 4
+            fb1 = modulator_stream[i]
             fm_feedback.times {|i|
-              fb1 = fb1 + sample(context, feedback_poses[i].next(hz, sym, sync) + fb1) * 4
+              fb1 = fb1 + sample(context, feedback_poses[i].next(hz, sym, sync) + fb1)
             }
             sample(context, pos.next(hz, sym, sync) + fb1)
           }
@@ -25,7 +25,7 @@ module Synthesizer
           dst = window_size.times.map {|i|
             fb1 = 0.0
             fm_feedback.times {|i|
-              fb1 = fb1 + sample(context, feedback_poses[i].next(hz, sym, sync) + fb1) * 4
+              fb1 = fb1 + sample(context, feedback_poses[i].next(hz, sym, sync) + fb1)
             }
             sample(context, pos.next(hz, sym, sync) + fb1)
           }

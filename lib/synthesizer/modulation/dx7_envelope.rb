@@ -1,9 +1,7 @@
-require 'synthesizer/modulation/releasable_envelope'
-
 module Synthesizer
   module Modulation
     class Dx7Envelope
-      include ReleasableEnvelope
+      include AmpEnvelope
 
       # 参考
       # OPERATING GUIDE BOOK DIGITAL POLYPHONIC SYNTHESIZER DX7
@@ -37,7 +35,7 @@ module Synthesizer
         end.each(&block)
       end
 
-      def note_off_envelope(soundinfo, samplecount, last_level, ctx, sustain: false, &block)
+      def note_off_envelope(soundinfo, samplecount, ctx, sustain: false, &block)
         Enumerator.new do |yld|
           ctx.advance(3)
 
@@ -61,17 +59,49 @@ module Synthesizer
       def generator(soundinfo, note_perform, samplecount, release_sustain:)
         ctx = create_context(soundinfo)
         note_on = note_on_envelope(soundinfo, samplecount, ctx, sustain: true)
-        note_off = nil
-        last_level = 0.0
+        note_off = note_off_envelope(soundinfo, samplecount, ctx, sustain: release_sustain)
 
         -> {
           if note_perform.note_on?
-            last_level = note_on.next
+            note_on.next
           else
-            note_off ||= note_off_envelope(soundinfo, samplecount, last_level, ctx, sustain: release_sustain)
             note_off.next
           end
         }
+      end
+
+      def plot_data(soundinfo, sustain: 0.0)
+        samplecount = soundinfo.window_size.to_f
+        ctx = create_context(soundinfo)
+        note_on = note_on_envelope(soundinfo, samplecount, ctx, sustain: false)
+        sustain = AudioStream::Rate.sec(sustain)
+
+        xs = []
+        ys = []
+
+        note_on.each {|y|
+          xs << xs.length
+          ys << y
+        }
+
+        sustain_len = (sustain.sample(soundinfo) / samplecount).to_i
+        sustain_len.times {|i|
+          xs << xs.length
+          ys << ctx.render(true)
+        }
+
+        note_off = note_off_envelope(soundinfo, samplecount, ctx, sustain: false)
+        note_off.each {|y|
+          xs << xs.length
+          ys << y
+        }
+
+        {x: xs, y: ys}
+      end
+
+      def plot(soundinfo, sustain: 0.0)
+        data = plot_data(soundinfo, sustain: sustain)
+        Plotly::Plot.new(data: [data], layout: {yaxis: {type: 'log'}})
       end
 
 
@@ -100,6 +130,8 @@ module Synthesizer
           @levels = levels
 
           @state = nil
+          @targetlevel = 0
+          @rising = false
           @level = 0
           @decayIncrement = 0
 

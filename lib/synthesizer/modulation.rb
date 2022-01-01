@@ -1,5 +1,5 @@
 require 'synthesizer/modulation/curve'
-require 'synthesizer/modulation/releasable_envelope'
+require 'synthesizer/modulation/amp_envelope'
 require 'synthesizer/modulation/adsr'
 require 'synthesizer/modulation/dx7_envelope'
 require 'synthesizer/modulation/dx7_pitch_envelope'

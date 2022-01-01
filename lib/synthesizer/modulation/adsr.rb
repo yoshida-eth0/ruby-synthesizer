@@ -1,9 +1,7 @@
-require 'synthesizer/modulation/releasable_envelope'
-
 module Synthesizer
   module Modulation
     class Adsr
-      include ReleasableEnvelope
+      include AmpEnvelope
 
       # @param attack [AudioStream::Rate | Float] attack sec (0.0~)
       # @param attack_curve [Synthesizer::Curve]
@@ -28,7 +26,7 @@ module Synthesizer
         nil
       end
 
-      def note_on_envelope(soundinfo, samplecount, context, sustain: false, &block)
+      def note_on_envelope(soundinfo, samplecount, sustain: false, &block)
         Enumerator.new do |yld|
           # attack
           attack_len = (@attack.sample(soundinfo) / samplecount).to_i
@@ -60,7 +58,7 @@ module Synthesizer
         end.each(&block)
       end
 
-      def note_off_envelope(soundinfo, samplecount, last_level, context, sustain: false, &block)
+      def note_off_envelope(soundinfo, samplecount, last_level, sustain: false, &block)
         Enumerator.new do |yld|
           # release
           release_len = (@release.sample(soundinfo) / samplecount).to_i
@@ -78,6 +76,59 @@ module Synthesizer
             }
           end
         end.each(&block)
+      end
+
+      def generator(soundinfo, note_perform, samplecount, release_sustain:)
+        note_on = note_on_envelope(soundinfo, samplecount, sustain: true)
+        note_off = nil
+        last_level = 0.0
+
+        -> {
+          if note_perform.note_on?
+            last_level = note_on.next
+          else
+            note_off ||= note_off_envelope(soundinfo, samplecount, last_level, sustain: release_sustain)
+            note_off.next
+          end
+        }
+      end
+
+      def plot_data(soundinfo, sustain: 0.0)
+        samplecount = soundinfo.window_size.to_f
+        note_on = note_on_envelope(soundinfo, samplecount, sustain: false)
+        sustain = AudioStream::Rate.sec(sustain)
+
+        xs = []
+        ys = []
+        last_level = nil
+
+        note_on.each {|y|
+          xs << xs.length
+          ys << y
+          last_level = y
+        }
+
+        if last_level
+          sustain_len = (sustain.sample(soundinfo) / samplecount).to_i
+          sustain_len.times {|i|
+            xs << xs.length
+            ys << last_level
+          }
+        end
+
+        last_level = ys.last || 0.0
+        note_off = note_off_envelope(soundinfo, samplecount, last_level, sustain: false)
+        note_off.each {|y|
+          xs << xs.length
+          ys << y
+        }
+
+        {x: xs, y: ys}
+      end
+
+      def plot(soundinfo, sustain: 0.0)
+        data = plot_data(soundinfo, sustain: sustain)
+        Plotly::Plot.new(data: [data])
       end
 
 

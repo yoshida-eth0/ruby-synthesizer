@@ -1,9 +1,6 @@
-require 'synthesizer/modulation/releasable_envelope'
-
 module Synthesizer
   module Modulation
-    class Dx7PitchEnvelope
-      include ReleasableEnvelope
+    class Dx7PitchEnvelope < Dx7Envelope
 
       # @param r1 [AudioStream::Rate | Float] 鍵を押した後LEVEL1までのレベル変化速度 (0~99)
       # @param r2 [AudioStream::Rate | Float] LEVEL1からLEVEL2までのレベル変化速度 (0~99)
@@ -14,79 +11,87 @@ module Synthesizer
       # @param l3 [Float] 鍵を押さえている間の持続ピッチ. 1octave=32, center=50 (0~99)
       # @param l4 [Float] 鍵を弾いた初期ピッチと鍵を離した後に戻る基準ピッチ. 1octave=32, center=50 (0~99)
       def initialize(r1:, r2:, r3:, r4:, l1:, l2:, l3:, l4:)
-        @r1 = AudioStream::Rate.dx7(r1)
-        @r2 = AudioStream::Rate.dx7(r2)
-        @r3 = AudioStream::Rate.dx7(r3)
-        @r4 = AudioStream::Rate.dx7(r4)
-        @l1 = AudioStream::Decibel.dx7_pitch(l1).mag
-        @l2 = AudioStream::Decibel.dx7_pitch(l2).mag
-        @l3 = AudioStream::Decibel.dx7_pitch(l3).mag
-        @l4 = AudioStream::Decibel.dx7_pitch(l4).mag
-        @curve = Curve::Straight
+        @rates = [r1.to_i, r2.to_i, r3.to_i, r4.to_i]
+        @levels = [l1.to_i, l2.to_i, l3.to_i, l4.to_i]
       end
 
       def create_context(soundinfo)
-        nil
+        Context.new(soundinfo, @rates, @levels)
       end
 
-      def note_on_envelope(soundinfo, samplecount, context, sustain: false, &block)
-        Enumerator.new do |yld|
-          # r1
-          r1_len = (@r1.sample(soundinfo) / samplecount).to_i
-          l1_diff = @l1 - @l4
-          r1_len.times {|i|
-            x = i.to_f / r1_len
-            y = @curve[x] * l1_diff + @l4
-            yld << y
-          }
-
-          # r2
-          r2_len = (@r2.sample(soundinfo) / samplecount).to_i
-          l2_diff = @l2 - @l1
-          r2_len.times {|i|
-            x = i.to_f / r2_len
-            y = @curve[x] * l2_diff + @l1
-            yld << y
-          }
-
-          # r3
-          r3_len = (@r3.sample(soundinfo) / samplecount).to_i
-          l3_diff = @l3 - @l2
-          r3_len.times {|i|
-            x = i.to_f / r3_len
-            y = @curve[x] * l3_diff + @l2
-            yld << y
-          }
-          yld << @l3
-
-          # sustain
-          if sustain
-            loop {
-              yld << @l3
-            }
-          end
-        end.each(&block)
+      def plot(soundinfo, sustain: 0.0)
+        data = plot_data(soundinfo, sustain: sustain)
+        Plotly::Plot.new(data: [data])
       end
 
-      def note_off_envelope(soundinfo, samplecount, last_level, context, sustain: false, &block)
-        Enumerator.new do |yld|
-          # r4
-          r4_len = (@r4.sample(soundinfo) / samplecount).to_i
-          l4_diff = @l4 - last_level
-          r4_len.times {|i|
-            x = i.to_f / r4_len
-            y = @curve[x] * l4_diff + last_level
-            yld << y
-          }
-          yld << @l4
 
-          # sustain
-          if sustain
-            loop {
-              yld << @l4
-            }
+      # PitchEnv by Google Inc used with modifications under Apache License, Version 2.0.
+      # Copyright (c) 2012 Google Inc
+      # https://github.com/google/music-synthesizer-for-android/blob/master/app/src/main/jni/pitchenv.cc
+
+      class Context
+        @@ratetab = [
+          1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12,
+          12, 13, 13, 14, 14, 15, 16, 16, 17, 18, 18, 19, 20, 21, 22, 23, 24,
+          25, 26, 27, 28, 30, 31, 33, 34, 36, 37, 38, 39, 41, 42, 44, 46, 47,
+          49, 51, 53, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 79, 82,
+          85, 88, 91, 94, 98, 102, 106, 110, 115, 120, 125, 130, 135, 141, 147,
+          153, 159, 165, 171, 178, 185, 193, 202, 211, 232, 243, 254, 255
+        ]
+
+        @@pitchtab = [
+          -128, -116, -104, -95, -85, -76, -68, -61, -56, -52, -49, -46, -43,
+          -41, -39, -37, -35, -33, -32, -31, -30, -29, -28, -27, -26, -25, -24,
+          -23, -22, -21, -20, -19, -18, -17, -16, -15, -14, -13, -12, -11, -10,
+          -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+          11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+          28, 29, 30, 31, 32, 33, 34, 35, 38, 40, 43, 46, 49, 53, 58, 65, 73,
+          82, 92, 103, 115, 127
+        ]
+
+        attr_reader :state
+
+        def initialize(soundinfo, rates, levels)
+          @samplescale = 44100.0 * (1 << 24) / (21.3 * soundinfo.samplerate) + 0.5
+          @rates = rates
+          @levels = levels
+
+          @state = nil
+          @targetlevel = 0
+          @rising = false
+          @level = @@pitchtab[levels.last] << 19
+
+          advance(0)
+        end
+
+        def render(note_on)
+          if @state < 3 || (@state < 4 && !note_on)
+            if @rising
+              @level += @inc;
+              if @level >= @targetlevel
+                @level = @targetlevel
+                advance(@state + 1)
+              end
+            else
+              @level -= @inc
+              if @level <= @targetlevel
+                @level = @targetlevel
+                advance(@state + 1)
+              end
+            end
           end
-        end.each(&block)
+          @level / 32767.0
+        end
+
+        def advance(newstate)
+          @state = newstate
+          if @state < 4
+            newlevel = @levels[newstate]
+            @targetlevel = @@pitchtab[newlevel] << 19
+            @rising = @targetlevel > @level
+            @inc = @@ratetab[@rates[newstate]] * @samplescale
+          end
+        end
       end
 
 

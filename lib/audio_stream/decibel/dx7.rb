@@ -4,16 +4,7 @@ module AudioStream
       if self===v
         v
       else
-        # NOTE: approximation, unknown formula
-        new(mag: (v / 99.0) ** 4)
-      end
-    end
-
-    def self.dx7_pitch(v)
-      if self===v
-        v
-      else
-        new(mag: (v - 50.0) / 32.0 * 12.0)
+        new(mag: v / 99.0)
       end
     end
   end

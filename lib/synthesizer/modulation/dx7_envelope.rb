@@ -20,7 +20,7 @@ module Synthesizer
         @levels = [l1.to_i, l2.to_i, l3.to_i, l4.to_i]
       end
 
-      def note_on_envelope(soundinfo, samplecount, ctx, sustain: false, &block)
+      def note_on_envelope(soundinfo, ctx, sustain: false, &block)
         Enumerator.new do |yld|
           while ctx.state < 3
             yld << ctx.render(true)
@@ -35,7 +35,7 @@ module Synthesizer
         end.each(&block)
       end
 
-      def note_off_envelope(soundinfo, samplecount, ctx, sustain: false, &block)
+      def note_off_envelope(soundinfo, ctx, sustain: false, &block)
         Enumerator.new do |yld|
           ctx.advance(3)
 
@@ -52,14 +52,14 @@ module Synthesizer
         end.each(&block)
       end
 
-      def create_context(soundinfo)
-        Context.new(soundinfo, @rates, @levels)
+      def create_context(soundinfo, samplecount)
+        Context.new(soundinfo, samplecount, @rates, @levels)
       end
 
       def generator(soundinfo, note_perform, samplecount, release_sustain:)
-        ctx = create_context(soundinfo)
-        note_on = note_on_envelope(soundinfo, samplecount, ctx, sustain: true)
-        note_off = note_off_envelope(soundinfo, samplecount, ctx, sustain: release_sustain)
+        ctx = create_context(soundinfo, samplecount)
+        note_on = note_on_envelope(soundinfo, ctx, sustain: true)
+        note_off = note_off_envelope(soundinfo, ctx, sustain: release_sustain)
 
         -> {
           if note_perform.note_on?
@@ -72,8 +72,8 @@ module Synthesizer
 
       def plot_data(soundinfo, sustain: 0.0)
         samplecount = soundinfo.window_size.to_f
-        ctx = create_context(soundinfo)
-        note_on = note_on_envelope(soundinfo, samplecount, ctx, sustain: false)
+        ctx = create_context(soundinfo, samplecount)
+        note_on = note_on_envelope(soundinfo, ctx, sustain: false)
         sustain = AudioStream::Rate.sec(sustain)
 
         xs = []
@@ -84,13 +84,13 @@ module Synthesizer
           ys << y
         }
 
-        sustain_len = (sustain.sample(soundinfo) / samplecount).to_i
+        sustain_len = (sustain.sample(soundinfo) / ctx.samplecount).to_i
         sustain_len.times {|i|
           xs << xs.length
           ys << ctx.render(true)
         }
 
-        note_off = note_off_envelope(soundinfo, samplecount, ctx, sustain: false)
+        note_off = note_off_envelope(soundinfo, ctx.samplecount, ctx, sustain: false)
         note_off.each {|y|
           xs << xs.length
           ys << y
@@ -118,14 +118,19 @@ module Synthesizer
           115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127];
 
         @@output_lut = 4096.times.map {|i|
-          db = (i - 3824) * 0.0235
-          20 ** (db / 20)
+          db = (i - 3840) * 0.0235
+          10 ** (db / 20)
         }
 
         attr_reader :state
+        attr_reader :samplecount
 
-        def initialize(soundinfo, rates, levels)
-          @samplescale = 44100.0 / soundinfo.samplerate * 0.5
+        def initialize(soundinfo, samplecount, rates, levels)
+          @samplecount = samplecount
+          @samplescale = 44100.0 / soundinfo.samplerate * samplecount / 1024 * 0.5
+          #@levelscale = (@@outputlevel[99] << 5) - 224
+          @levelscale = @@output_lut[3840]
+
           @rates = rates
           @levels = levels
 

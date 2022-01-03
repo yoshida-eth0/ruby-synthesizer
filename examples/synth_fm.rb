@@ -25,7 +25,7 @@ carrier1 = Operator.new(
   fixed_freq: nil,
   ratio_freq: 1.0,
   envelope: Modulation::Dx7Envelope.new(
-    r1: 99, r2: 99, r3: 30, r4: 99,
+    r1: 99, r2: 99, r3: 40, r4: 40,
     l1: 99, l2: 99, l3: 0,  l4: 0
   ),
   pmd: 0.0,
@@ -38,7 +38,7 @@ modulator1 = Operator.new(
   fixed_freq: nil,
   ratio_freq: 8.0,
   envelope: Modulation::Dx7Envelope.new(
-    r1: 99, r2: 99, r3: 30, r4: 99,
+    r1: 99, r2: 99, r3: 40, r4: 40,
     l1: 99, l2: 99, l3: 0,  l4: 0
   ),
   pmd: 0.0,
@@ -67,14 +67,20 @@ synth = FmSynth.new(
 
 bufs = []
 
-synth.note_on(Note.new(72-12))
-bufs += 10.times.map {|_| synth.next}
-synth.note_on(Note.new(76-12))
+synth.note_on(Note.new(60))
+bufs += 20.times.map {|_| synth.next}
+synth.note_on(Note.new(64))
+bufs += 20.times.map {|_| synth.next}
+synth.note_on(Note.new(67))
+bufs += 20.times.map {|_| synth.next}
+synth.note_on(Note.new(72))
 bufs += 100.times.map {|_| synth.next}
 
-synth.note_off(Note.new(72-12))
-synth.note_off(Note.new(76-12))
-bufs += 50.times.map {|_| synth.next}
+synth.note_off(Note.new(60))
+synth.note_off(Note.new(64))
+synth.note_off(Note.new(67))
+synth.note_off(Note.new(72))
+bufs += 20.times.map {|_| synth.next}
 
 
 track1 = AudioInput.buffer(bufs)

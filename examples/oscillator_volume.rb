@@ -22,7 +22,7 @@ synth = PolySynth.new(
   oscillators: [
     Oscillator.new(
       source: OscillatorSource::Sawtooth.instance,
-      volume: ModulationValue.new(0.0)
+      volume: ModulationValue.new(0.5)
         .add(Modulation::Lfo.new(
           shape: Shape::Sine,
           delay: 0.0,
@@ -30,7 +30,7 @@ synth = PolySynth.new(
           attack_curve: Modulation::Curve::Straight,
           phase: 0.0,
           rate: 0.5
-        ), depth: 1),
+        ), depth: 1.0),
     ),
   ],
   amplifier: Amplifier.new(

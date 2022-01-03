@@ -15,8 +15,8 @@ module Synthesizer
         @levels = [l1.to_i, l2.to_i, l3.to_i, l4.to_i]
       end
 
-      def create_context(soundinfo)
-        Context.new(soundinfo, @rates, @levels)
+      def create_context(soundinfo, samplecount)
+        Context.new(soundinfo, samplecount, @rates, @levels)
       end
 
       def plot(soundinfo, sustain: 0.0)
@@ -51,8 +51,9 @@ module Synthesizer
 
         attr_reader :state
 
-        def initialize(soundinfo, rates, levels)
+        def initialize(soundinfo, samplecount, rates, levels)
           @samplescale = 44100.0 * (1 << 24) / (21.3 * soundinfo.samplerate) + 0.5
+          @samplescale = @samplescale * 1024 / samplecount
           @rates = rates
           @levels = levels
 
